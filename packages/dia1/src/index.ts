@@ -26,6 +26,7 @@ const textDecoder = new TextDecoder("utf-8", { fatal: true });
 const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export type DialectOptions = {
+  deduplicate?: boolean;
   words?: readonly string[];
   minWordBytes?: number;
   minWordOccurrences?: number;
@@ -39,6 +40,7 @@ type JsonObject = { [key: string]: JsonValue };
 type JsonValue = JsonScalar | JsonValue[] | JsonObject;
 
 type ResolvedOptions = {
+  deduplicate: boolean;
   words: string[];
   minWordBytes: number;
   minWordOccurrences: number;
@@ -178,7 +180,7 @@ export function encodeDialect(
     encoded = encodeDocument(normalized, dialect);
   }
 
-  const tables = serializeTables(dialect);
+  const tables = serializeTables(dialect, resolved.deduplicate);
   const header = [
     FORMAT,
     utf8Length(json),
@@ -232,6 +234,7 @@ export function decodeDialect(encoded: string): unknown {
 }
 
 function resolveOptions(options: DialectOptions): ResolvedOptions {
+  const deduplicate = options.deduplicate ?? true;
   const minWordBytes = options.minWordBytes ?? 4;
   const minWordOccurrences = options.minWordOccurrences ?? 3;
   const maxWords = options.maxWords ?? tokenCapacity;
@@ -247,6 +250,7 @@ function resolveOptions(options: DialectOptions): ResolvedOptions {
   const words = uniqueStrings(options.words ?? [], "words");
 
   return {
+    deduplicate,
     words,
     minWordBytes,
     minWordOccurrences,
@@ -1347,7 +1351,7 @@ function sameDialectSize(left: Dialect, right: Dialect): boolean {
   );
 }
 
-function serializeTables(dialect: Dialect): string {
+function serializeTables(dialect: Dialect, deduplicate: boolean): string {
   let output = "";
   const keyDialect = createDialect([], dialect.keys, [], []);
   const wordDialect = createDialect([], dialect.words, [], []);
@@ -1359,18 +1363,36 @@ function serializeTables(dialect: Dialect): string {
   );
 
   dialect.keys.forEach((key, index) => {
+    if (!deduplicate) {
+      output += stringFrame(key);
+
+      return;
+    }
+
     output += chooseDefinitionFrame(
       stringFrame(key),
       encodeString(key, keyDialect, index).wire,
     );
   });
   dialect.words.forEach((word, index) => {
+    if (!deduplicate) {
+      output += stringFrame(word);
+
+      return;
+    }
+
     output += chooseDefinitionFrame(
       stringFrame(word),
       encodeString(word, wordDialect, index).wire,
     );
   });
   dialect.exactValues.forEach((json, index) => {
+    if (!deduplicate) {
+      output += rawFrame(json);
+
+      return;
+    }
+
     const earlierValues = { ...definitionDialect, exactLimit: index };
     const encoded = encodeValue(
       parseJsonValue(json),
@@ -1383,7 +1405,7 @@ function serializeTables(dialect: Dialect): string {
   });
 
   for (const shape of dialect.shapes) {
-    output += serializeShape(shape, dialect, definitionDialect);
+    output += serializeShape(shape, dialect, definitionDialect, deduplicate);
   }
 
   return output;
@@ -1393,6 +1415,7 @@ function serializeShape(
   shape: Shape,
   dialect: Dialect,
   definitionDialect: Dialect,
+  deduplicate: boolean,
 ): string {
   let output = String(shape.fields.length) + ":";
 
@@ -1412,6 +1435,12 @@ function serializeShape(
             : "p";
     output += tokenFor(keyIndex) + marker;
     if (field.kind === "constant") {
+      if (!deduplicate) {
+        output += rawFrame(field.json);
+
+        return;
+      }
+
       const encoded = encodeValue(
         parseJsonValue(field.json),
         definitionDialect,
@@ -1423,9 +1452,14 @@ function serializeShape(
     } else if (field.kind === "copy") {
       output += String(field.source) + ":";
     } else if (field.kind === "concat") {
+      output += String(field.source) + ":";
+      if (!deduplicate) {
+        output += stringFrame(field.prefix) + stringFrame(field.suffix);
+
+        return;
+      }
+
       output +=
-        String(field.source) +
-        ":" +
         chooseDefinitionFrame(
           stringFrame(field.prefix),
           encodeString(field.prefix, definitionDialect).wire,

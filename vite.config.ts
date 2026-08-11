@@ -16,6 +16,8 @@ const ignores = [
   ".vite-hooks/**/*",
   "skills/**",
   "public/*-downloads.*",
+  "fixtures/code/**",
+  "fixtures/prose/**",
   "fixture.json",
 ];
 

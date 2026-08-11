@@ -1,0 +1,42 @@
+{
+  "benchmark": "code compression",
+  "gzipLevel": 9,
+  "dia1": {
+    "deduplicate": true,
+    "jsonWrapped": true
+  },
+  "rows": [
+    {
+      "fixture": "r50k_base.js (minified JS)",
+      "sourceBytes": 502907,
+      "gzipBytes": 206374,
+      "dia1WrappedBytes": 335620,
+      "gzipDia1Bytes": 201456,
+      "gzipDia1Delta": -4918
+    },
+    {
+      "fixture": "models.gen.ts (generated TS)",
+      "sourceBytes": 122779,
+      "gzipBytes": 13852,
+      "dia1WrappedBytes": 54927,
+      "gzipDia1Bytes": 13540,
+      "gzipDia1Delta": -312
+    },
+    {
+      "fixture": "bun.d.ts (type declarations)",
+      "sourceBytes": 324360,
+      "gzipBytes": 81992,
+      "dia1WrappedBytes": 270114,
+      "gzipDia1Bytes": 84528,
+      "gzipDia1Delta": 2536
+    },
+    {
+      "fixture": "Tailwind CDN 3.4.17 (minified JS)",
+      "sourceBytes": 407279,
+      "gzipBytes": 123738,
+      "dia1WrappedBytes": 367279,
+      "gzipDia1Bytes": 126949,
+      "gzipDia1Delta": 3211
+    }
+  ]
+}

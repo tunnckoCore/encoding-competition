@@ -1,0 +1,31 @@
+{
+  "benchmark": "size wars",
+  "tokenizer": "gpt-tokenizer",
+  "rows": [
+    {
+      "format": "TOON",
+      "bytes": 293582,
+      "tokens": 87190
+    },
+    {
+      "format": "JSON",
+      "bytes": 271898,
+      "tokens": 78220
+    },
+    {
+      "format": "HBS3",
+      "bytes": 191039,
+      "tokens": 93564
+    },
+    {
+      "format": "TGJ",
+      "bytes": 115483,
+      "tokens": 51105
+    },
+    {
+      "format": "DIA1",
+      "bytes": 79905,
+      "tokens": 36497
+    }
+  ]
+}

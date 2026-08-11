@@ -1,13 +1,18 @@
 import {
-  alphabetFingerprint,
-  emojiAlphabet,
-  emojiIndex,
+  compactTokenCapacity,
+  directTokens,
+  isTokenLiteral,
+  simpleTokenSuffixes,
+  stringDelimiter,
+  stringEscape,
+  tokenBanks,
   tokenByteLength,
   tokenCapacity,
   tokenFor,
-  tokenModifiers,
-  unicodeEscape,
+  tokenIndexFor,
+  tokenPrefix,
 } from "./alphabet.ts";
+import { decodeDia2Envelope, encodeDia2Envelope } from "./dia2.ts";
 
 const FORMAT = "dia1";
 const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -16,11 +21,15 @@ const MAX_ENTRY_BYTES = 4096;
 const MAX_DEPTH = 128;
 const MAX_DECODE_NODES = 1_000_000;
 const MAX_SPLICE_BYTES = 512;
+const MIN_WORD_NET_SAVINGS = 14;
+const FRAME_ESCAPE = "~";
 const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export type DialectOptions = {
+  deduplicate?: boolean;
+  dia2?: boolean;
   words?: readonly string[];
   minWordBytes?: number;
   minWordOccurrences?: number;
@@ -34,6 +43,8 @@ type JsonObject = { [key: string]: JsonValue };
 type JsonValue = JsonScalar | JsonValue[] | JsonObject;
 
 type ResolvedOptions = {
+  deduplicate: boolean;
+  dia2: boolean;
   words: string[];
   minWordBytes: number;
   minWordOccurrences: number;
@@ -88,6 +99,7 @@ type TrieNode = {
 
 type Dialect = {
   exactIndex: Map<string, number>;
+  exactLimit: number;
   exactValues: string[];
   keyIndex: Map<string, number>;
   keys: string[];
@@ -136,11 +148,17 @@ type DecodeBudget = {
   nodesRemaining: number;
 };
 
+type DefinitionFrame = {
+  encoded: boolean;
+  value: string;
+};
+
 type Header = {
   exactCount: number;
   expandedBytes: number;
   keyCount: number;
   payload: string;
+  prefixBytes: number;
   shapeCount: number;
   wordCount: number;
 };
@@ -167,7 +185,7 @@ export function encodeDialect(
     encoded = encodeDocument(normalized, dialect);
   }
 
-  const tables = serializeTables(dialect);
+  const tables = serializeTables(dialect, resolved.deduplicate);
   const header = [
     FORMAT,
     utf8Length(json),
@@ -175,23 +193,48 @@ export function encodeDialect(
     dialect.words.length,
     dialect.exactValues.length,
     dialect.shapes.length,
-    alphabetFingerprint,
   ].join(".");
 
-  return header + ":" + tables + encoded.body;
+  const dia1Header = header + ":" + tables;
+
+  return resolved.dia2
+    ? encodeDia2Envelope(dia1Header, encoded.body, MAX_EXPANDED_BYTES)
+    : dia1Header + encoded.body;
 }
 
 export function decodeDialect(encoded: string): unknown {
+  if (encoded.startsWith("dia2.")) {
+    const envelope = decodeDia2Envelope(encoded, MAX_EXPANDED_BYTES);
+
+    return decodeDia1(envelope.dia1, envelope.headerBytes);
+  }
+
+  return decodeDia1(encoded);
+}
+
+function decodeDia1(encoded: string, expectedHeaderBytes?: number): unknown {
   const header = parseHeader(encoded);
   if (header.expandedBytes > MAX_EXPANDED_BYTES) {
     throw new Error("dialect expanded payload exceeds the decoder limit");
   }
 
   const reader = new ByteReader(textEncoder.encode(header.payload));
-  const keys = readStringTable(reader, header.keyCount, "key");
-  const words = readStringTable(reader, header.wordCount, "word");
-  const exactValues = readExactTable(reader, header.exactCount);
-  const shapes = readShapeTable(reader, header.shapeCount, keys);
+  const keys = readKeyTable(reader, header.keyCount);
+  const words = readWordTable(reader, header.wordCount);
+  const exactValues = readExactTable(reader, header.exactCount, keys, words);
+  const shapes = readShapeTable(
+    reader,
+    header.shapeCount,
+    keys,
+    words,
+    exactValues,
+  );
+  if (
+    expectedHeaderBytes !== undefined &&
+    header.prefixBytes + reader.cursor !== expectedHeaderBytes
+  ) {
+    throw new Error("dia2 envelope does not contain exactly one dia1 header");
+  }
   const tables = { exactValues, keys, shapes, words };
   const budget: DecodeBudget = {
     bytesRemaining: header.expandedBytes,
@@ -216,21 +259,25 @@ export function decodeDialect(encoded: string): unknown {
 }
 
 function resolveOptions(options: DialectOptions): ResolvedOptions {
+  const deduplicate = options.deduplicate ?? true;
+  const dia2 = options.dia2 ?? false;
   const minWordBytes = options.minWordBytes ?? 4;
   const minWordOccurrences = options.minWordOccurrences ?? 3;
-  const maxWords = options.maxWords ?? emojiAlphabet.length;
+  const maxWords = options.maxWords ?? compactTokenCapacity;
   const maxValues = options.maxValues ?? 768;
   const maxShapes = options.maxShapes ?? 256;
 
   assertIntegerRange(minWordBytes, "minWordBytes", 4, 1024);
   assertIntegerRange(minWordOccurrences, "minWordOccurrences", 2, 1_000_000);
-  assertIntegerRange(maxWords, "maxWords", 0, emojiAlphabet.length);
+  assertIntegerRange(maxWords, "maxWords", 0, tokenCapacity);
   assertIntegerRange(maxValues, "maxValues", 0, tokenCapacity);
   assertIntegerRange(maxShapes, "maxShapes", 0, tokenCapacity);
 
   const words = uniqueStrings(options.words ?? [], "words");
 
   return {
+    deduplicate,
+    dia2,
     words,
     minWordBytes,
     minWordOccurrences,
@@ -338,7 +385,7 @@ function inferLocalRelations(
       if (
         isJsonScalar(target) &&
         isJsonScalar(candidate) &&
-        JSON.stringify(target) === JSON.stringify(candidate)
+        target === candidate
       ) {
         return { kind: "copy", source };
       }
@@ -363,11 +410,20 @@ function inferLocalRelations(
       }
 
       const position = target.indexOf(candidate);
+      const prefix = target.slice(0, position);
+      const suffix = target.slice(position + candidate.length);
+      if (
+        utf8Length(prefix) > MAX_ENTRY_BYTES ||
+        utf8Length(suffix) > MAX_ENTRY_BYTES
+      ) {
+        continue;
+      }
+
       const relation = {
         kind: "concat" as const,
-        prefix: target.slice(0, position),
+        prefix,
         source,
-        suffix: target.slice(position + candidate.length),
+        suffix,
       };
       if (
         !best ||
@@ -682,6 +738,7 @@ function inferShapeConstants(group: ShapeGroup): ShapeField[] {
     const key = group.keys[index]!;
     const first = JSON.stringify(group.records[0]![key]!);
     if (
+      utf8Length(first) <= MAX_ENTRY_BYTES &&
       group.records.every((record) => JSON.stringify(record[key]!) === first)
     ) {
       const definitionBytes = 1 + rawFrameBytes(first);
@@ -732,6 +789,7 @@ function createDialect(
 ): Dialect {
   return {
     exactIndex: indexStrings(exactValues),
+    exactLimit: exactValues.length,
     exactValues,
     keyIndex: indexStrings(keys),
     keys,
@@ -783,7 +841,7 @@ function encodeValue(
   }
 
   const json = JSON.stringify(value);
-  const exactIndex = allowExact ? dialect.exactIndex.get(json) : undefined;
+  const exactIndex = allowExact ? findExactIndex(dialect, json) : undefined;
   if (exactIndex !== undefined) {
     return encodedToken(exactIndex);
   }
@@ -826,7 +884,7 @@ function encodeScalar(
 
 function encodeScalarNormally(value: JsonScalar, dialect: Dialect): Encoded {
   const json = JSON.stringify(value);
-  const exactIndex = dialect.exactIndex.get(json);
+  const exactIndex = findExactIndex(dialect, json);
   if (exactIndex !== undefined) {
     return encodedToken(exactIndex);
   }
@@ -851,11 +909,10 @@ function encodeScalarCopy(
   value: JsonScalar,
   scope: JsonScalar[],
 ): Encoded | undefined {
-  const json = JSON.stringify(value);
   const start = Math.max(0, scope.length - BASE62.length);
 
   for (let index = scope.length - 1; index >= start; index -= 1) {
-    if (JSON.stringify(scope[index]) === json) {
+    if (scope[index] === value) {
       const distance = scope.length - 1 - index;
 
       return emptyEncoded("=" + BASE62[distance]!);
@@ -870,20 +927,34 @@ function encodeScalarSplice(
   scope: JsonScalar[],
   dialect: Dialect,
 ): Encoded | undefined {
-  if (utf8Length(target) > MAX_SPLICE_BYTES) {
+  const targetBytes = utf8Length(target);
+  if (targetBytes > MAX_SPLICE_BYTES) {
     return undefined;
   }
 
   let best: Encoded | undefined;
   const start = Math.max(0, scope.length - BASE62.length);
+  const targetCharacters = Array.from(target);
+  const targetIsAscii = targetBytes === target.length;
 
   for (let index = scope.length - 1; index >= start; index -= 1) {
     const source = scope[index];
-    if (typeof source !== "string" || utf8Length(source) > MAX_SPLICE_BYTES) {
+    if (typeof source !== "string") {
       continue;
     }
 
-    const candidate = findSplice(source, target, scope.length - 1 - index);
+    const sourceBytes = utf8Length(source);
+    if (sourceBytes < 8 || sourceBytes > MAX_SPLICE_BYTES) {
+      continue;
+    }
+
+    const candidate = findSplice(
+      source,
+      target,
+      targetCharacters,
+      targetIsAscii && sourceBytes === source.length,
+      scope.length - 1 - index,
+    );
     if (!candidate) {
       continue;
     }
@@ -910,81 +981,128 @@ function encodeScalarSplice(
 function findSplice(
   source: string,
   target: string,
+  targetCharacters: string[],
+  ascii: boolean,
   sourceDistance: number,
 ): Splice | undefined {
-  const sourceChars = Array.from(source);
-  const targetChars = Array.from(target);
-  const candidates: Splice[] = [];
-
   const containedAt = target.indexOf(source);
   if (containedAt >= 0) {
-    candidates.push({
+    return {
       dropLeft: 0,
       dropRight: 0,
       prefix: target.slice(0, containedAt),
       sourceDistance,
       suffix: target.slice(containedAt + source.length),
-    });
+    };
   }
+
+  if (ascii) {
+    return findAsciiSplice(source, target, sourceDistance);
+  }
+
+  const sourceCharacters = Array.from(source);
+  const sourceLength = sourceCharacters.length;
+  const targetLength = targetCharacters.length;
 
   let prefixLength = 0;
   while (
-    prefixLength < sourceChars.length &&
-    prefixLength < targetChars.length &&
-    sourceChars[prefixLength] === targetChars[prefixLength]
+    prefixLength < sourceLength &&
+    prefixLength < targetLength &&
+    sourceCharacters[prefixLength] === targetCharacters[prefixLength]
   ) {
     prefixLength += 1;
-  }
-  if (prefixLength > 0) {
-    candidates.push({
-      dropLeft: 0,
-      dropRight: sourceChars.length - prefixLength,
-      prefix: "",
-      sourceDistance,
-      suffix: targetChars.slice(prefixLength).join(""),
-    });
   }
 
   let suffixLength = 0;
   while (
-    suffixLength < sourceChars.length &&
-    suffixLength < targetChars.length &&
-    sourceChars[sourceChars.length - 1 - suffixLength] ===
-      targetChars[targetChars.length - 1 - suffixLength]
+    suffixLength < sourceLength &&
+    suffixLength < targetLength &&
+    sourceCharacters[sourceLength - 1 - suffixLength] ===
+      targetCharacters[targetLength - 1 - suffixLength]
   ) {
     suffixLength += 1;
   }
-  if (suffixLength > 0) {
-    candidates.push({
-      dropLeft: sourceChars.length - suffixLength,
+
+  const prefixBytes = utf8Length(
+    sourceCharacters.slice(0, prefixLength).join(""),
+  );
+  const suffixBytes = utf8Length(
+    sourceCharacters.slice(sourceLength - suffixLength).join(""),
+  );
+
+  if (prefixBytes >= suffixBytes && prefixBytes >= 8) {
+    return {
+      dropLeft: 0,
+      dropRight: sourceLength - prefixLength,
+      prefix: "",
+      sourceDistance,
+      suffix: targetCharacters.slice(prefixLength, targetLength).join(""),
+    };
+  }
+  if (suffixBytes >= 8) {
+    return {
+      dropLeft: sourceLength - suffixLength,
       dropRight: 0,
-      prefix: targetChars.slice(0, targetChars.length - suffixLength).join(""),
+      prefix: targetCharacters.slice(0, targetLength - suffixLength).join(""),
       sourceDistance,
       suffix: "",
-    });
+    };
   }
 
-  return candidates
-    .filter((candidate) => {
-      const copied = sourceChars
-        .slice(candidate.dropLeft, sourceChars.length - candidate.dropRight)
-        .join("");
-
-      return utf8Length(copied) >= 8;
-    })
-    .sort((left, right) => {
-      const leftCopied = sourceChars
-        .slice(left.dropLeft, sourceChars.length - left.dropRight)
-        .join("");
-      const rightCopied = sourceChars
-        .slice(right.dropLeft, sourceChars.length - right.dropRight)
-        .join("");
-
-      return utf8Length(rightCopied) - utf8Length(leftCopied);
-    })[0];
+  return undefined;
 }
 
-function encodeString(value: string, dialect: Dialect): Encoded {
+function findAsciiSplice(
+  source: string,
+  target: string,
+  sourceDistance: number,
+): Splice | undefined {
+  let prefixLength = 0;
+  while (
+    prefixLength < source.length &&
+    prefixLength < target.length &&
+    source[prefixLength] === target[prefixLength]
+  ) {
+    prefixLength += 1;
+  }
+
+  let suffixLength = 0;
+  while (
+    suffixLength < source.length &&
+    suffixLength < target.length &&
+    source[source.length - 1 - suffixLength] ===
+      target[target.length - 1 - suffixLength]
+  ) {
+    suffixLength += 1;
+  }
+
+  if (prefixLength >= 8 && prefixLength >= suffixLength) {
+    return {
+      dropLeft: 0,
+      dropRight: source.length - prefixLength,
+      prefix: "",
+      sourceDistance,
+      suffix: target.slice(prefixLength),
+    };
+  }
+  if (suffixLength >= 8) {
+    return {
+      dropLeft: source.length - suffixLength,
+      dropRight: 0,
+      prefix: target.slice(0, target.length - suffixLength),
+      sourceDistance,
+      suffix: "",
+    };
+  }
+
+  return undefined;
+}
+
+function encodeString(
+  value: string,
+  dialect: Dialect,
+  wordLimit = dialect.words.length,
+): Encoded {
   const raw = emptyEncoded(quoteRawString(value));
   if (dialect.words.length === 0 || value.length === 0) {
     return raw;
@@ -1011,6 +1129,9 @@ function encodeString(value: string, dialect: Dialect): Encoded {
         break;
       }
       if (node.index === undefined) {
+        continue;
+      }
+      if (node.index >= wordLimit) {
         continue;
       }
 
@@ -1048,7 +1169,7 @@ function encodeString(value: string, dialect: Dialect): Encoded {
   }
 
   const wordUses: number[] = [];
-  let wire = '"';
+  let wire = stringDelimiter;
   for (const piece of pieces) {
     if (piece.kind === "word") {
       wire += tokenFor(piece.index);
@@ -1057,7 +1178,7 @@ function encodeString(value: string, dialect: Dialect): Encoded {
       wire += escapeRawStringContent(piece.value);
     }
   }
-  wire += '"';
+  wire += stringDelimiter;
 
   const encoded: Encoded = {
     exactUses: [],
@@ -1101,7 +1222,7 @@ function encodeArray(
       signatures.every((signature) => signature === signatures[0]) &&
       records.every(
         (record) =>
-          dialect.exactIndex.get(JSON.stringify(record)) === undefined,
+          findExactIndex(dialect, JSON.stringify(record)) === undefined,
       )
     ) {
       const shape = dialect.shapes[shapeIndex]!;
@@ -1243,7 +1364,9 @@ function pruneDialect(dialect: Dialect, usage: Usage): Dialect {
         utf8Length(escapeRawStringContent(word)) - tokenByteLength(index),
       );
 
-    return uses > 0 && maximumSavings > stringFrameBytes(word);
+    return (
+      uses > 0 && maximumSavings > stringFrameBytes(word) + MIN_WORD_NET_SAVINGS
+    );
   });
   const exactValues = dialect.exactValues.filter((value, index) => {
     const uses = usage.exact[index]!;
@@ -1265,61 +1388,143 @@ function sameDialectSize(left: Dialect, right: Dialect): boolean {
   );
 }
 
-function serializeTables(dialect: Dialect): string {
+function serializeTables(dialect: Dialect, deduplicate: boolean): string {
   let output = "";
+  const keyDialect = createDialect([], dialect.keys, [], []);
+  const wordDialect = createDialect([], dialect.words, [], []);
+  const definitionDialect = createDialect(
+    dialect.keys,
+    dialect.words,
+    dialect.exactValues,
+    [],
+  );
 
-  for (const key of dialect.keys) {
-    output += stringFrame(key);
-  }
-  for (const word of dialect.words) {
-    output += stringFrame(word);
-  }
-  for (const value of dialect.exactValues) {
-    output += rawFrame(value);
-  }
+  dialect.keys.forEach((key, index) => {
+    if (!deduplicate) {
+      output += stringFrame(key);
+
+      return;
+    }
+
+    output += chooseDefinitionFrame(
+      stringFrame(key),
+      encodeString(key, keyDialect, index).wire,
+    );
+  });
+  dialect.words.forEach((word, index) => {
+    if (!deduplicate) {
+      output += stringFrame(word);
+
+      return;
+    }
+
+    output += chooseDefinitionFrame(
+      stringFrame(word),
+      encodeString(word, wordDialect, index).wire,
+    );
+  });
+  dialect.exactValues.forEach((json, index) => {
+    if (!deduplicate) {
+      output += rawFrame(json);
+
+      return;
+    }
+
+    const earlierValues = { ...definitionDialect, exactLimit: index };
+    const encoded = encodeValue(
+      parseJsonValue(json),
+      earlierValues,
+      undefined,
+      false,
+      0,
+    );
+    output += chooseDefinitionFrame(rawFrame(json), encoded.wire);
+  });
+
   for (const shape of dialect.shapes) {
-    output += String(shape.fields.length) + ":";
-
-    shape.fields.forEach((field, index) => {
-      const keyIndex = dialect.keyIndex.get(shape.keys[index]!);
-      if (keyIndex === undefined) {
-        throw new Error("dialect shape key is missing from the key table");
-      }
-
-      const marker =
-        field.kind === "dynamic"
-          ? "d"
-          : field.kind === "constant"
-            ? "c"
-            : field.kind === "copy"
-              ? "r"
-              : "p";
-      output += tokenFor(keyIndex) + marker;
-      if (field.kind === "constant") {
-        output += rawFrame(field.json);
-      } else if (field.kind === "copy") {
-        output += String(field.source) + ":";
-      } else if (field.kind === "concat") {
-        output +=
-          String(field.source) +
-          ":" +
-          stringFrame(field.prefix) +
-          stringFrame(field.suffix);
-      }
-    });
+    output += serializeShape(shape, dialect, definitionDialect, deduplicate);
   }
 
   return output;
 }
 
+function serializeShape(
+  shape: Shape,
+  dialect: Dialect,
+  definitionDialect: Dialect,
+  deduplicate: boolean,
+): string {
+  let output = String(shape.fields.length) + ":";
+
+  shape.fields.forEach((field, index) => {
+    const keyIndex = dialect.keyIndex.get(shape.keys[index]!);
+    if (keyIndex === undefined) {
+      throw new Error("dialect shape key is missing from the key table");
+    }
+
+    const marker =
+      field.kind === "dynamic"
+        ? "d"
+        : field.kind === "constant"
+          ? "c"
+          : field.kind === "copy"
+            ? "r"
+            : "p";
+    output += tokenFor(keyIndex) + marker;
+    if (field.kind === "constant") {
+      if (!deduplicate) {
+        output += rawFrame(field.json);
+
+        return;
+      }
+
+      const encoded = encodeValue(
+        parseJsonValue(field.json),
+        definitionDialect,
+        undefined,
+        true,
+        0,
+      );
+      output += chooseDefinitionFrame(rawFrame(field.json), encoded.wire);
+    } else if (field.kind === "copy") {
+      output += String(field.source) + ":";
+    } else if (field.kind === "concat") {
+      output += String(field.source) + ":";
+      if (!deduplicate) {
+        output += stringFrame(field.prefix) + stringFrame(field.suffix);
+
+        return;
+      }
+
+      output +=
+        chooseDefinitionFrame(
+          stringFrame(field.prefix),
+          encodeString(field.prefix, definitionDialect).wire,
+        ) +
+        chooseDefinitionFrame(
+          stringFrame(field.suffix),
+          encodeString(field.suffix, definitionDialect).wire,
+        );
+    }
+  });
+
+  return output;
+}
+
+function chooseDefinitionFrame(raw: string, encoded: string): string {
+  const candidate = encodedFrame(encoded);
+
+  return utf8Length(candidate) < utf8Length(raw) ? candidate : raw;
+}
+
+function encodedFrame(value: string): string {
+  return String(utf8Length(value)) + ";" + value;
+}
+
 function parseHeader(encoded: string): Header {
-  const match =
-    /^dia1\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.([0-9a-f]{16}):/.exec(encoded);
+  const match = /^dia1\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+):/.exec(encoded);
   if (!match) {
     throw new Error("malformed dialect header");
-  }
-  if (match[6] !== alphabetFingerprint) {
-    throw new Error("dialect emoji alphabet does not match this runtime");
   }
 
   const expandedBytes = parseUnsigned(match[1]!, "expandedBytes");
@@ -1329,7 +1534,7 @@ function parseHeader(encoded: string): Header {
   const shapeCount = parseUnsigned(match[5]!, "shapeCount");
 
   assertIntegerRange(keyCount, "keyCount", 0, tokenCapacity);
-  assertIntegerRange(wordCount, "wordCount", 0, emojiAlphabet.length);
+  assertIntegerRange(wordCount, "wordCount", 0, tokenCapacity);
   assertIntegerRange(exactCount, "exactCount", 0, tokenCapacity);
   assertIntegerRange(shapeCount, "shapeCount", 0, tokenCapacity);
 
@@ -1338,65 +1543,58 @@ function parseHeader(encoded: string): Header {
     expandedBytes,
     keyCount,
     payload: encoded.slice(match[0].length),
+    prefixBytes: match[0].length,
     shapeCount,
     wordCount,
   };
 }
 
-function readStringTable(
-  reader: ByteReader,
-  count: number,
-  name: string,
-): string[] {
-  const entries: string[] = [];
+function readKeyTable(reader: ByteReader, count: number): string[] {
+  const keys: string[] = [];
 
   for (let index = 0; index < count; index += 1) {
-    const value = reader.readFramedString();
-    if (utf8Length(value) > MAX_ENTRY_BYTES && name !== "key") {
-      throw new Error("dialect " + name + " entry exceeds the decoder limit");
-    }
-
-    entries.push(value);
+    keys.push(readStringDefinition(reader, keys, "key", MAX_EXPANDED_BYTES));
   }
 
-  return entries;
+  return keys;
 }
 
-function readRawTable(
-  reader: ByteReader,
-  count: number,
-  name: string,
-): string[] {
-  const entries: string[] = [];
+function readWordTable(reader: ByteReader, count: number): string[] {
+  const words: string[] = [];
 
   for (let index = 0; index < count; index += 1) {
-    const value = reader.readRawString();
-    if (utf8Length(value) > MAX_ENTRY_BYTES && name !== "key") {
-      throw new Error("dialect " + name + " entry exceeds the decoder limit");
-    }
-
-    entries.push(value);
+    words.push(readStringDefinition(reader, words, "word"));
   }
 
-  return entries;
+  return words;
 }
 
-function readExactTable(reader: ByteReader, count: number): string[] {
-  const entries = readRawTable(reader, count, "exact value");
+function readExactTable(
+  reader: ByteReader,
+  count: number,
+  keys: string[],
+  words: string[],
+): string[] {
+  const exactValues: string[] = [];
 
-  for (const entry of entries) {
-    parseJsonValue(entry);
+  for (let index = 0; index < count; index += 1) {
+    const tables = { exactValues, keys, shapes: [], words };
+    const value = readValueDefinition(reader, tables, "exact value");
+    exactValues.push(JSON.stringify(value));
   }
 
-  return entries;
+  return exactValues;
 }
 
 function readShapeTable(
   reader: ByteReader,
   count: number,
   keys: string[],
+  words: string[],
+  exactValues: string[],
 ): DecodedShape[] {
   const shapes: DecodedShape[] = [];
+  const definitionTables = { exactValues, keys, shapes: [], words };
 
   for (let shapeIndex = 0; shapeIndex < count; shapeIndex += 1) {
     const fieldCount = reader.readUnsigned();
@@ -1415,8 +1613,12 @@ function readShapeTable(
       if (mode === "d") {
         fields.push({ kind: "dynamic" });
       } else if (mode === "c") {
-        const json = reader.readRawString();
-        parseJsonValue(json);
+        const value = readValueDefinition(
+          reader,
+          definitionTables,
+          "shape constant",
+        );
+        const json = JSON.stringify(value);
         fields.push({ json, kind: "constant" });
       } else if (mode === "r") {
         const source = reader.readUnsigned();
@@ -1433,9 +1635,9 @@ function readShapeTable(
 
         fields.push({
           kind: "concat",
-          prefix: reader.readFramedString(),
+          prefix: readStringDefinition(reader, words, "shape prefix"),
           source,
-          suffix: reader.readFramedString(),
+          suffix: readStringDefinition(reader, words, "shape suffix"),
         });
       } else {
         throw new Error("dialect shape contains an unknown field mode");
@@ -1446,6 +1648,75 @@ function readShapeTable(
   }
 
   return shapes;
+}
+
+function readStringDefinition(
+  reader: ByteReader,
+  words: string[],
+  name: string,
+  maximumBytes = MAX_ENTRY_BYTES,
+): string {
+  const frame = reader.readDefinitionFrame();
+  let value: unknown;
+
+  if (frame.encoded) {
+    const entryReader = new ByteReader(textEncoder.encode(frame.value));
+    value = entryReader.readQuotedString(words, maximumBytes + 2);
+    if (!entryReader.done()) {
+      throw new Error(
+        "dialect " + name + " definition contains trailing bytes",
+      );
+    }
+  } else {
+    try {
+      value = JSON.parse('"' + frame.value + '"') as unknown;
+    } catch {
+      throw new Error("dialect " + name + " definition is malformed");
+    }
+  }
+
+  if (typeof value !== "string") {
+    throw new Error("dialect " + name + " definition is not a string");
+  }
+  if (utf8Length(value) > maximumBytes) {
+    throw new Error("dialect " + name + " entry exceeds the decoder limit");
+  }
+
+  return value;
+}
+
+function readValueDefinition(
+  reader: ByteReader,
+  tables: DecodeTables,
+  name: string,
+): JsonValue {
+  const frame = reader.readDefinitionFrame();
+  const value = frame.encoded
+    ? decodeDefinitionValue(frame.value, tables, name)
+    : parseJsonValue(frame.value);
+  if (utf8Length(JSON.stringify(value)) > MAX_ENTRY_BYTES) {
+    throw new Error("dialect " + name + " entry exceeds the decoder limit");
+  }
+
+  return value;
+}
+
+function decodeDefinitionValue(
+  encoded: string,
+  tables: DecodeTables,
+  name: string,
+): JsonValue {
+  const reader = new ByteReader(textEncoder.encode(encoded));
+  const budget: DecodeBudget = {
+    bytesRemaining: MAX_ENTRY_BYTES,
+    nodesRemaining: Math.min(MAX_ENTRY_BYTES, MAX_DECODE_NODES),
+  };
+  const value = decodeValue(reader, tables, budget, undefined, 0);
+  if (!reader.done()) {
+    throw new Error("dialect " + name + " definition contains trailing bytes");
+  }
+
+  return value;
 }
 
 function decodeValue(
@@ -1471,7 +1742,7 @@ function decodeValue(
   }
 
   const marker = reader.peekAscii();
-  if (marker === '"') {
+  if (marker === stringDelimiter) {
     const value = reader.readQuotedString(tables.words, budget.bytesRemaining);
     chargeScalar(budget, value);
     if (scope) {
@@ -1607,7 +1878,7 @@ function decodeArray(
     if (values.length > 0) {
       chargeBytes(budget, 1);
     }
-    values.push(decodeValue(reader, tables, budget, scope, depth + 1));
+    values.push(decodeValue(reader, tables, budget, scope, depth));
   }
   reader.readAscii();
 
@@ -1629,7 +1900,7 @@ function decodeObject(
     const keyIndex = reader.readToken(tables.keys.length);
     const key = tables.keys[keyIndex]!;
     chargeMember(budget, key, Object.keys(value).length);
-    const child = decodeValue(reader, tables, budget, localScope, depth + 1);
+    const child = decodeValue(reader, tables, budget, localScope, depth);
     defineJsonProperty(value, key, child);
   }
   reader.readAscii();
@@ -1655,7 +1926,7 @@ function decodeShape(
     let child: JsonValue;
 
     if (field.kind === "dynamic") {
-      child = decodeValue(reader, tables, budget, scope, depth + 1);
+      child = decodeValue(reader, tables, budget, scope, depth);
     } else if (field.kind === "constant") {
       child = parseJsonValue(field.json);
       chargeTree(budget, child);
@@ -1696,34 +1967,126 @@ function readScopeScalar(
 }
 
 function quoteRawString(value: string): string {
-  return '"' + escapeRawStringContent(value) + '"';
+  return stringDelimiter + escapeRawStringContent(value) + stringDelimiter;
 }
 
 function escapeRawStringContent(value: string): string {
-  const escaped = JSON.stringify(value).slice(1, -1);
-  let output = "";
+  let escaped = "";
 
-  for (const character of escaped) {
-    output += emojiIndex.has(character) ? unicodeEscape(character) : character;
+  for (const character of value) {
+    if (isTokenLiteral(character)) {
+      escaped += stringEscape + character;
+      continue;
+    }
+    if (character.length > 1) {
+      escaped += character;
+      continue;
+    }
+
+    const code = character.charCodeAt(0);
+    if (character === "\\") {
+      escaped += stringEscape + "b";
+    } else if (character === '"') {
+      escaped += stringEscape + "d";
+    } else if (character === "\b") {
+      escaped += stringEscape + "h";
+    } else if (character === "\t") {
+      escaped += stringEscape + "t";
+    } else if (character === "\n") {
+      escaped += stringEscape + "n";
+    } else if (character === "\f") {
+      escaped += stringEscape + "f";
+    } else if (character === "\r") {
+      escaped += stringEscape + "r";
+    } else if (code < 0x20 || (code >= 0xd800 && code <= 0xdfff)) {
+      escaped += stringEscape + "u" + hexCodeUnit(code);
+    } else {
+      escaped += character;
+    }
   }
 
-  return output;
+  return escaped;
 }
 
 function stringFrame(value: string): string {
-  return rawFrame(JSON.stringify(value));
+  return rawFrame(JSON.stringify(value).slice(1, -1));
 }
 
 function stringFrameBytes(value: string): number {
-  return rawFrameBytes(JSON.stringify(value));
+  return rawFrameBytes(JSON.stringify(value).slice(1, -1));
 }
 
 function rawFrame(value: string): string {
-  return String(utf8Length(value)) + ":" + value;
+  const escaped = escapeFrameContent(value);
+
+  return String(utf8Length(escaped)) + ":" + escaped;
 }
 
 function rawFrameBytes(value: string): number {
-  return String(utf8Length(value)).length + 1 + utf8Length(value);
+  const bytes = utf8Length(escapeFrameContent(value));
+
+  return String(bytes).length + 1 + bytes;
+}
+
+function escapeFrameContent(value: string): string {
+  let escaped = "";
+
+  for (const character of value) {
+    if (character === '"') {
+      escaped += stringDelimiter;
+    } else if (character === stringDelimiter) {
+      escaped += FRAME_ESCAPE + "a";
+    } else if (character === FRAME_ESCAPE) {
+      escaped += FRAME_ESCAPE + FRAME_ESCAPE;
+    } else if (character === "\\") {
+      escaped += FRAME_ESCAPE + "b";
+    } else {
+      escaped += character;
+    }
+  }
+
+  return escaped;
+}
+
+function unescapeFrameContent(value: string): string {
+  let decoded = "";
+
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index]!;
+    if (character === stringDelimiter) {
+      decoded += '"';
+      continue;
+    }
+    if (character !== FRAME_ESCAPE) {
+      if (
+        character === '"' ||
+        character === "\\" ||
+        character.charCodeAt(0) < 0x20
+      ) {
+        throw new Error("dialect frame contains an unsafe character");
+      }
+
+      decoded += character;
+      continue;
+    }
+
+    const escape = value[++index];
+    if (escape === "a") {
+      decoded += stringDelimiter;
+    } else if (escape === "b") {
+      decoded += "\\";
+    } else if (escape === FRAME_ESCAPE) {
+      decoded += FRAME_ESCAPE;
+    } else {
+      throw new Error("dialect frame contains an unknown escape");
+    }
+  }
+
+  return decoded;
+}
+
+function hexCodeUnit(code: number): string {
+  return code.toString(16).padStart(4, "0");
 }
 
 function buildTrie(words: string[]): TrieNode {
@@ -1750,6 +2113,12 @@ function buildTrie(words: string[]): TrieNode {
 
 function indexStrings(values: string[]): Map<string, number> {
   return new Map(values.map((value, index) => [value, index]));
+}
+
+function findExactIndex(dialect: Dialect, json: string): number | undefined {
+  const index = dialect.exactIndex.get(json);
+
+  return index !== undefined && index < dialect.exactLimit ? index : undefined;
 }
 
 function compareCandidates(left: Candidate, right: Candidate): number {
@@ -1952,7 +2321,7 @@ function uniqueStrings(values: readonly string[], name: string): string[] {
 }
 
 function utf8Length(value: string): number {
-  return textEncoder.encode(value).length;
+  return Buffer.byteLength(value);
 }
 
 function parseUnsigned(value: string, name: string): number {
@@ -2046,17 +2415,33 @@ class ByteReader {
     return value;
   }
 
-  readFramedString(): string {
-    const value = JSON.parse(this.readRawString()) as unknown;
-    if (typeof value !== "string") {
-      throw new Error("dialect string frame does not contain a string");
+  readDefinitionFrame(): DefinitionFrame {
+    const start = this.cursor;
+
+    while (true) {
+      const byte = this.bytes[this.cursor];
+      if (byte === 58 || byte === 59) {
+        break;
+      }
+      if (byte === undefined || byte < 48 || byte > 57) {
+        throw new Error("dialect payload contains a malformed frame length");
+      }
+
+      this.cursor += 1;
     }
 
-    return value;
-  }
+    if (this.cursor === start) {
+      throw new Error("dialect payload contains an empty frame length");
+    }
 
-  readRawString(): string {
-    const length = this.readUnsigned();
+    const length = Number(
+      textDecoder.decode(this.bytes.subarray(start, this.cursor)),
+    );
+    const encoded = this.bytes[this.cursor] === 59;
+    this.cursor += 1;
+    if (!Number.isSafeInteger(length)) {
+      throw new Error("dialect frame length exceeds the safe integer range");
+    }
     if (
       length > MAX_EXPANDED_BYTES ||
       this.cursor + length > this.bytes.length
@@ -2069,14 +2454,16 @@ class ByteReader {
     );
     this.cursor += length;
 
-    return value;
+    return {
+      encoded,
+      value: encoded ? value : unescapeFrameContent(value),
+    };
   }
 
   readQuotedString(words: string[], maxDecodedBytes: number): string {
-    this.expectAscii('"');
+    this.expectAscii(stringDelimiter);
 
     let decodedBytes = 0;
-    let escaped = "";
     let value = "";
 
     const append = (piece: string): void => {
@@ -2087,72 +2474,85 @@ class ByteReader {
 
       value += piece;
     };
-    const flush = (): void => {
-      if (!escaped) {
-        return;
-      }
-
-      append(JSON.parse('"' + escaped + '"') as string);
-      escaped = "";
-    };
 
     while (true) {
       const marker = this.peekAscii();
-      if (marker === '"') {
+      if (marker === stringDelimiter) {
         this.readAscii();
-        flush();
 
         return value;
       }
-      if (this.startsBareToken()) {
-        flush();
+      if (this.startsToken()) {
         const index = this.readToken(words.length);
         append(words[index]!);
         continue;
       }
-      if (marker === "\\") {
-        escaped += this.readAscii();
+      if (marker === stringEscape) {
+        this.readAscii();
         const escape = this.readAscii();
-        escaped += escape;
+        if (isTokenLiteral(escape)) {
+          append(escape);
+          continue;
+        }
 
-        if (escape === "u") {
+        if (escape === "b") {
+          append("\\");
+        } else if (escape === "d") {
+          append('"');
+        } else if (escape === "h") {
+          append("\b");
+        } else if (escape === "t") {
+          append("\t");
+        } else if (escape === "n") {
+          append("\n");
+        } else if (escape === "f") {
+          append("\f");
+        } else if (escape === "r") {
+          append("\r");
+        } else if (escape === "u") {
+          let digits = "";
           for (let index = 0; index < 4; index += 1) {
             const digit = this.readAscii();
             if (!/[0-9A-Fa-f]/.test(digit)) {
               throw new Error("dialect string contains a malformed escape");
             }
 
-            escaped += digit;
+            digits += digit;
           }
+          append(String.fromCharCode(Number.parseInt(digits, 16)));
+        } else {
+          throw new Error("dialect string contains an unknown escape");
         }
 
         continue;
       }
 
-      escaped += this.readCodePoint();
+      append(this.readCodePoint());
     }
   }
 
   readToken(limit: number): number {
-    let bank = 0;
-    const modifier = this.peekAscii();
+    const first = this.readAscii();
+    let token = first;
 
-    if (modifier && tokenModifiers.includes(modifier)) {
-      bank = tokenModifiers.indexOf(this.readAscii()) + 1;
+    if (first === tokenPrefix) {
+      const suffix = this.readAscii();
+      token += suffix;
+      if (suffix === tokenPrefix) {
+        token += this.readAscii() + this.readAscii() + this.readAscii();
+      } else if (tokenBanks.includes(suffix)) {
+        token += this.readAscii();
+      } else if (!simpleTokenSuffixes.includes(suffix)) {
+        throw new Error("dialect payload contains an unknown token suffix");
+      }
+    } else if (!directTokens.includes(first)) {
+      throw new Error("dialect payload contains an unknown token root");
     }
 
-    const root = this.readCodePoint();
-    const rootIndex = emojiIndex.get(root);
-    if (rootIndex === undefined) {
-      throw new Error(
-        "dialect payload contains an unknown emoji root at byte " +
-          (this.cursor - utf8Length(root)) +
-          ": " +
-          JSON.stringify(root),
-      );
+    const index = tokenIndexFor(token);
+    if (index === undefined) {
+      throw new Error("dialect payload contains an unknown token");
     }
-
-    const index = bank * emojiAlphabet.length + rootIndex;
     if (index >= limit) {
       throw new Error("dialect token reference is out of range");
     }
@@ -2208,34 +2608,14 @@ class ByteReader {
     return value;
   }
 
-  startsBareToken(): boolean {
-    const byte = this.bytes[this.cursor];
-    if (byte === undefined || byte < 0x80) {
-      return false;
-    }
-
-    const cursor = this.cursor;
-    const root = this.readCodePoint();
-    this.cursor = cursor;
-
-    return emojiIndex.has(root);
-  }
-
   startsToken(): boolean {
-    if (this.startsBareToken()) {
-      return true;
-    }
-
-    const modifier = this.peekAscii();
-    if (!modifier || !tokenModifiers.includes(modifier)) {
+    const byte = this.bytes[this.cursor];
+    if (byte === undefined || byte > 0x7f) {
       return false;
     }
 
-    const cursor = this.cursor;
-    this.cursor += 1;
-    const result = this.startsBareToken();
-    this.cursor = cursor;
+    const character = String.fromCharCode(byte);
 
-    return result;
+    return character === tokenPrefix || directTokens.includes(character);
   }
 }

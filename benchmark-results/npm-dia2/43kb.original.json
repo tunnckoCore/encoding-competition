@@ -1,0 +1,1972 @@
+{
+  "objects": [
+    {
+      "downloads": { "monthly": 282379872, "weekly": 71962199 },
+      "dependents": "586",
+      "updated": "2026-08-09T05:41:47.703Z",
+      "searchScore": 87.54866,
+      "package": {
+        "name": "is-async-function",
+        "keywords": [
+          "async",
+          "async function",
+          "es6",
+          "es2015",
+          "yield",
+          "function",
+          "function*"
+        ],
+        "version": "2.1.1",
+        "description": "Determine if a function is a native async function.",
+        "sanitized_name": "is-async-function",
+        "publisher": { "email": "ljharb@gmail.com", "username": "ljharb" },
+        "maintainers": [
+          { "email": "ljharb@gmail.com", "username": "ljharb" },
+          { "email": "equator-owl-studio@duck.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2025-01-23T06:28:33.366Z",
+        "links": {
+          "homepage": "https://github.com/inspect-js/is-async-function#readme",
+          "repository": "git://github.com/inspect-js/is-async-function.git",
+          "bugs": "https://github.com/inspect-js/is-async-function/issues",
+          "npm": "https://www.npmjs.com/package/is-async-function"
+        }
+      },
+      "score": {
+        "final": 87.54866,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 102888429, "weekly": 24011535 },
+      "dependents": "1793",
+      "updated": "2026-08-09T05:41:26.900Z",
+      "searchScore": 81.61925,
+      "package": {
+        "name": "formidable",
+        "keywords": [
+          "multipart",
+          "form",
+          "data",
+          "querystring",
+          "www",
+          "json",
+          "ulpoad",
+          "file"
+        ],
+        "version": "3.5.4",
+        "description": "A node.js module for parsing form data, especially file uploads.",
+        "sanitized_name": "formidable",
+        "publisher": {
+          "email": "equator-owl-studio@duck.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "felix@debuggable.com", "username": "felixge" },
+          { "email": "cyril.walle@protonmail.com", "username": "grossacasacs" },
+          { "email": "equator-owl-studio@duck.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2025-04-23T01:58:45.608Z",
+        "links": {
+          "homepage": "https://github.com/node-formidable/formidable",
+          "repository": "node-formidable/formidable",
+          "bugs": "https://github.com/node-formidable/formidable/issues",
+          "npm": "https://www.npmjs.com/package/formidable"
+        }
+      },
+      "score": {
+        "final": 81.61925,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 52549304, "weekly": 12918005 },
+      "dependents": "347",
+      "updated": "2026-08-09T05:46:05.881Z",
+      "searchScore": 79.478355,
+      "package": {
+        "name": "unc-path-regex",
+        "keywords": [
+          "absolute",
+          "expression",
+          "file",
+          "filepath",
+          "match",
+          "matching",
+          "path",
+          "regex",
+          "regexp",
+          "regular",
+          "unc",
+          "win",
+          "windows"
+        ],
+        "version": "0.1.2",
+        "description": "Regular expression for testing if a file path is a windows UNC file path. Can also be used as a component of another regexp via the `.source` property.",
+        "sanitized_name": "unc-path-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "github@sellside.com", "username": "jonschlinkert" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-04-10T02:51:44.090Z",
+        "links": {
+          "homepage": "https://github.com/regexhq/unc-path-regex",
+          "repository": "git+https://github.com/regexhq/unc-path-regex.git",
+          "bugs": "https://github.com/regexhq/unc-path-regex/issues",
+          "npm": "https://www.npmjs.com/package/unc-path-regex"
+        }
+      },
+      "score": {
+        "final": 79.478355,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 8539138, "weekly": 2027166 },
+      "dependents": "111",
+      "updated": "2026-08-09T05:46:06.893Z",
+      "searchScore": 72.593025,
+      "package": {
+        "name": "hex-color-regex",
+        "keywords": [
+          "color",
+          "colors",
+          "css",
+          "expr",
+          "expression",
+          "expressions",
+          "hex",
+          "match",
+          "matching",
+          "regex",
+          "regexp",
+          "regexps",
+          "regular",
+          "web"
+        ],
+        "version": "1.1.0",
+        "description": "The best regular expression (regex) for matching hex color values from string.",
+        "sanitized_name": "hex-color-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-06-03T01:33:26.075Z",
+        "links": {
+          "homepage": "https://github.com/regexps/hex-color-regex#readme",
+          "repository": "git+https://github.com/regexps/hex-color-regex.git",
+          "bugs": "https://github.com/regexps/hex-color-regex/issues",
+          "npm": "https://www.npmjs.com/package/hex-color-regex"
+        }
+      },
+      "score": {
+        "final": 72.593025,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 7856837, "weekly": 1637541 },
+      "dependents": "92",
+      "updated": "2026-08-09T05:46:51.098Z",
+      "searchScore": 70.637505,
+      "package": {
+        "name": "rgba-regex",
+        "keywords": [
+          "css",
+          "regex",
+          "regexp",
+          "regexps",
+          "rgba",
+          "color",
+          "regular",
+          "expression"
+        ],
+        "version": "1.0.0",
+        "description": "Regex for matching RGBA color strings.",
+        "sanitized_name": "rgba-regex",
+        "publisher": { "email": "johnotander@gmail.com", "username": "johno" },
+        "maintainers": [
+          { "email": "johnotander@gmail.com", "username": "johno" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-02-02T04:42:23.410Z",
+        "links": {
+          "homepage": "https://github.com/johnotander/rgba-regex",
+          "repository": "https://github.com/johnotander/rgba-regex.git",
+          "bugs": "https://github.com/johnotander/rgba-regex/issues",
+          "npm": "https://www.npmjs.com/package/rgba-regex"
+        }
+      },
+      "score": {
+        "final": 70.637505,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 5095032, "weekly": 1382728 },
+      "dependents": "28",
+      "updated": "2026-08-09T05:44:18.045Z",
+      "searchScore": 67.80439,
+      "package": {
+        "name": "parse-semver",
+        "keywords": [
+          "equal",
+          "helper",
+          "is",
+          "kindof",
+          "normalize",
+          "npm",
+          "object",
+          "parse",
+          "parser",
+          "range",
+          "semver",
+          "shallow",
+          "short",
+          "shorthand",
+          "utils",
+          "validate",
+          "version"
+        ],
+        "version": "1.1.1",
+        "description": "Parse, normalize and validate given semver shorthand (e.g. gulp@v3.8.10) to object.",
+        "sanitized_name": "parse-semver",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-02-23T01:22:28.753Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/parse-semver#readme",
+          "repository": "git+https://github.com/tunnckocore/parse-semver.git",
+          "bugs": "https://github.com/tunnckocore/parse-semver/issues",
+          "npm": "https://www.npmjs.com/package/parse-semver"
+        }
+      },
+      "score": {
+        "final": 67.80439,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 2017536, "weekly": 534145 },
+      "dependents": "59",
+      "updated": "2026-08-09T05:42:28.007Z",
+      "searchScore": 64.495285,
+      "package": {
+        "name": "parse-function",
+        "keywords": [
+          "args",
+          "arguments",
+          "async",
+          "async-await",
+          "asyncawait",
+          "await",
+          "babel",
+          "developer-experience",
+          "development",
+          "dx",
+          "fn",
+          "func",
+          "function",
+          "generators",
+          "hela",
+          "parameters",
+          "params",
+          "parse",
+          "parse-function",
+          "parser",
+          "tostring",
+          "tunnckocore-oss",
+          "tunnckocorehq",
+          "typescript",
+          "utilities"
+        ],
+        "version": "5.6.10",
+        "description": "Parse a function into an object using espree, acorn or babylon parsers. Extensible through Smart Plugins",
+        "sanitized_name": "parse-function",
+        "publisher": {
+          "email": "opensource@tunnckocore.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2020-03-28T01:43:58.589Z",
+        "links": {
+          "homepage": "https://tunnckocore.com/opensource",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/parse-function"
+        }
+      },
+      "score": {
+        "final": 64.495285,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 1951860, "weekly": 542310 },
+      "dependents": "213",
+      "updated": "2026-08-09T05:45:38.192Z",
+      "searchScore": 63.393925,
+      "package": {
+        "name": "get-installed-path",
+        "keywords": [
+          "filepath",
+          "get",
+          "global",
+          "globally",
+          "install",
+          "installed",
+          "local",
+          "locally",
+          "npm",
+          "package",
+          "path",
+          "pkg",
+          "resolve"
+        ],
+        "version": "4.0.8",
+        "description": "Get installation path where the given package is installed. Works for globally and locally installed packages",
+        "sanitized_name": "get-installed-path",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-10-12T05:42:49.649Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/get-installed-path",
+          "repository": "git+https://github.com/tunnckoCore/get-installed-path.git",
+          "bugs": "https://github.com/tunnckoCore/get-installed-path/issues",
+          "npm": "https://www.npmjs.com/package/get-installed-path"
+        }
+      },
+      "score": {
+        "final": 63.393925,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 1550099, "weekly": 389758 },
+      "dependents": "15",
+      "updated": "2026-08-09T05:46:19.045Z",
+      "searchScore": 62.876213,
+      "package": {
+        "name": "resolve-package",
+        "keywords": [
+          "file",
+          "filepath",
+          "fs",
+          "get",
+          "global",
+          "globally",
+          "install",
+          "installed",
+          "local",
+          "module",
+          "modules",
+          "node",
+          "nodemodules",
+          "packages",
+          "path",
+          "pkg",
+          "require",
+          "resolve",
+          "resolves"
+        ],
+        "version": "1.0.1",
+        "description": "Resolves a given package if it is installed locally, then tries to resolve it from global registry, using battle-tested [global-modules][] package. Better approach than internal `require.resolve`, so you can trust. You just get absolute filepath to some p",
+        "sanitized_name": "resolve-package",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-12-13T22:12:58.967Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/resolve-package#readme",
+          "repository": "git+https://github.com/tunnckocore/resolve-package.git",
+          "bugs": "https://github.com/tunnckocore/resolve-package/issues",
+          "npm": "https://www.npmjs.com/package/resolve-package"
+        }
+      },
+      "score": {
+        "final": 62.876213,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 235369, "weekly": 56370 },
+      "dependents": "57",
+      "updated": "2026-08-09T05:46:49.807Z",
+      "searchScore": 54.83656,
+      "package": {
+        "name": "detect-installed",
+        "keywords": [
+          "check",
+          "detect",
+          "directory",
+          "global",
+          "globally",
+          "install",
+          "installed",
+          "local",
+          "locally",
+          "module",
+          "modules",
+          "npm",
+          "package",
+          "packages",
+          "pkg",
+          "util",
+          "utils",
+          "validate"
+        ],
+        "version": "2.0.4",
+        "description": "Checks that given package is installed globally or locally.",
+        "sanitized_name": "detect-installed",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-12-12T16:23:21.848Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/detect-installed#readme",
+          "repository": "git+https://github.com/tunnckocore/detect-installed.git",
+          "bugs": "https://github.com/tunnckocore/detect-installed/issues",
+          "npm": "https://www.npmjs.com/package/detect-installed"
+        }
+      },
+      "score": {
+        "final": 54.83656,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 235867, "weekly": 54137 },
+      "dependents": "16",
+      "updated": "2026-08-09T05:45:27.134Z",
+      "searchScore": 53.679867,
+      "package": {
+        "name": "starts-with",
+        "keywords": [
+          "array",
+          "begin",
+          "first",
+          "javascript",
+          "js",
+          "prefix",
+          "start",
+          "starts",
+          "string",
+          "tool",
+          "util",
+          "utility",
+          "utils"
+        ],
+        "version": "1.0.2",
+        "description": "Returns `true` if the given string or array starts with prefix using strict equality for comparisons. Using fastest implementation.",
+        "sanitized_name": "starts-with",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-07-09T13:59:39.168Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/starts-with#readme",
+          "repository": "git+https://github.com/tunnckocore/starts-with.git",
+          "bugs": "https://github.com/tunnckocore/starts-with/issues",
+          "npm": "https://www.npmjs.com/package/starts-with"
+        }
+      },
+      "score": {
+        "final": 53.679867,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 103547, "weekly": 23047 },
+      "dependents": "39",
+      "updated": "2026-08-08T10:14:07.760Z",
+      "searchScore": 50.980087,
+      "package": {
+        "name": "function-arguments",
+        "keywords": [
+          "args",
+          "arguments",
+          "arrow",
+          "arrow-function",
+          "arrows",
+          "dependency",
+          "deps",
+          "fn",
+          "func",
+          "function",
+          "function-arguments",
+          "generator",
+          "generators",
+          "get",
+          "inject",
+          "injectors",
+          "parameters",
+          "params",
+          "regular",
+          "useful"
+        ],
+        "version": "1.0.9",
+        "description": "Get arguments of a function, useful for and used in dependency injectors. Works for regular functions, generator functions and arrow functions.",
+        "sanitized_name": "function-arguments",
+        "publisher": {
+          "email": "opensource@tunnckocore.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" }
+        ],
+        "license": "MIT",
+        "date": "2020-01-15T09:31:07.859Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/function-arguments#readme",
+          "repository": "git+https://github.com/tunnckoCore/function-arguments.git",
+          "bugs": "https://github.com/tunnckoCore/function-arguments/issues",
+          "npm": "https://www.npmjs.com/package/function-arguments"
+        }
+      },
+      "score": {
+        "final": 50.980087,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 56102, "weekly": 10368 },
+      "dependents": "21",
+      "updated": "2026-08-07T09:24:43.214Z",
+      "searchScore": 47.646755,
+      "package": {
+        "name": "es6-template",
+        "keywords": [
+          "easy",
+          "ecma",
+          "ecmascript",
+          "engine",
+          "es6",
+          "regex",
+          "simple",
+          "small",
+          "string",
+          "template",
+          "tpl"
+        ],
+        "version": "1.0.4",
+        "description": "Easy and small template engine for the browser and nodejs.",
+        "sanitized_name": "es6-template",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-01-13T17:58:22.617Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/es6-template#readme",
+          "repository": "git+https://github.com/tunnckocore/es6-template.git",
+          "bugs": "https://github.com/tunnckocore/es6-template/issues",
+          "npm": "https://www.npmjs.com/package/es6-template"
+        }
+      },
+      "score": {
+        "final": 47.646755,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 54787, "weekly": 11930 },
+      "dependents": "11",
+      "updated": "2026-08-08T10:17:20.614Z",
+      "searchScore": 47.536415,
+      "package": {
+        "name": "phone-regex",
+        "keywords": ["phone", "number", "regex", "phone-regex", "phone-number"],
+        "version": "2.1.0",
+        "description": "Regular expression for phone numbers.",
+        "sanitized_name": "phone-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "johnotander@gmail.com", "username": "johno" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-09-23T00:05:22.372Z",
+        "links": {
+          "homepage": "https://github.com/johnotander/phone-regex",
+          "repository": "git+https://github.com/johnotander/phone-regex.git",
+          "bugs": "https://github.com/johnotander/phone-regex/issues",
+          "npm": "https://www.npmjs.com/package/phone-regex"
+        }
+      },
+      "score": {
+        "final": 47.536415,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 42604, "weekly": 15766 },
+      "dependents": "2",
+      "updated": "2026-08-07T09:21:55.541Z",
+      "searchScore": 47.390106,
+      "package": {
+        "name": "to-file-path",
+        "keywords": [
+          "args",
+          "arguments",
+          "dot",
+          "dot-notation",
+          "file",
+          "filepath",
+          "fp",
+          "list",
+          "notation",
+          "obj",
+          "object",
+          "path",
+          "to",
+          "to-file",
+          "to-file-path",
+          "to-filepath",
+          "to-path",
+          "util",
+          "utility",
+          "tunnckocore-oss",
+          "tunnckocorehq",
+          "valid",
+          "validate"
+        ],
+        "version": "3.0.0",
+        "description": "Create a filepath from an object path (dot notation), list of arguments, array, number or Arguments object.",
+        "sanitized_name": "to-file-path",
+        "publisher": {
+          "email": "npm@tunnckocore.anonaddy.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "npm@tunnckocore.anonaddy.com", "username": "tunnckocore" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2022-07-02T13:10:38.066Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/opensource/tree/master/modules/to-file-path",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/to-file-path"
+        }
+      },
+      "score": {
+        "final": 47.390106,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 43636, "weekly": 9852 },
+      "dependents": "2",
+      "updated": "2026-08-07T09:25:07.335Z",
+      "searchScore": 47.131886,
+      "package": {
+        "name": "regex-username",
+        "keywords": [
+          "regular expression",
+          "regex",
+          "regexp",
+          "user",
+          "username"
+        ],
+        "version": "2.0.0",
+        "description": "Regular expression for usernames - it follows the same rules that GitHub uses.",
+        "sanitized_name": "regex-username",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "yoshuawuyts@gmail.com", "username": "yoshuawuyts" },
+          { "email": "github@sellside.com", "username": "jonschlinkert" },
+          { "email": "brian.woodward@gmail.com", "username": "doowb" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-08-16T18:02:14.006Z",
+        "links": {
+          "homepage": "https://github.com/regexhq/regex-username#readme",
+          "repository": "git+https://github.com/regexhq/regex-username.git",
+          "bugs": "https://github.com/regexhq/regex-username/issues",
+          "npm": "https://www.npmjs.com/package/regex-username"
+        }
+      },
+      "score": {
+        "final": 47.131886,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 45408, "weekly": 11401 },
+      "dependents": "5",
+      "updated": "2026-08-09T05:43:33.121Z",
+      "searchScore": 47.108612,
+      "package": {
+        "name": "get-comments",
+        "keywords": [
+          "array",
+          "code",
+          "codecomments",
+          "comments",
+          "esprima",
+          "extract",
+          "jscomments",
+          "locations",
+          "object"
+        ],
+        "version": "1.0.1",
+        "description": "Extract javascript comments on per character basis. Comment object compatible with `acorn-extract-comments` and Esprima format.",
+        "sanitized_name": "get-comments",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-05-30T01:13:34.374Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/get-comments#readme",
+          "repository": "git+https://github.com/tunnckocore/get-comments.git",
+          "bugs": "https://github.com/tunnckocore/get-comments/issues",
+          "npm": "https://www.npmjs.com/package/get-comments"
+        }
+      },
+      "score": {
+        "final": 47.108612,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 42695, "weekly": 15778 },
+      "dependents": "7",
+      "updated": "2026-08-07T09:24:03.751Z",
+      "searchScore": 46.507908,
+      "package": {
+        "name": "ip-filter",
+        "keywords": [
+          "array",
+          "check",
+          "development",
+          "dx",
+          "filter",
+          "glob",
+          "hela",
+          "ip",
+          "ip-filter",
+          "ips",
+          "ipv",
+          "ismatch",
+          "match",
+          "matcher",
+          "micro",
+          "micromatch",
+          "modern",
+          "patterns",
+          "regexp",
+          "string",
+          "tunnckocore-oss",
+          "tunnckocorehq",
+          "valid",
+          "validate"
+        ],
+        "version": "4.0.0",
+        "description": "Validates given IPs (IPv4 and IPv6) using [micromatch][] - glob patterns, RegExp, string or array of globs. If match returns the IP, otherwise null.",
+        "sanitized_name": "ip-filter",
+        "publisher": {
+          "email": "npm@tunnckocore.anonaddy.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "npm@tunnckocore.anonaddy.com", "username": "tunnckocore" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2022-07-02T14:54:48.983Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/opensource/tree/master/modules/ip-filter",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/ip-filter"
+        }
+      },
+      "score": {
+        "final": 46.507908,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 28583, "weekly": 6765 },
+      "dependents": "8",
+      "updated": "2026-08-08T10:14:34.647Z",
+      "searchScore": 44.509674,
+      "package": {
+        "name": "native-or-another",
+        "keywords": [
+          "any",
+          "any-promise",
+          "autoload",
+          "bluebird",
+          "common",
+          "common-promise",
+          "ecma",
+          "ecmascript",
+          "es2015",
+          "es6",
+          "es2017",
+          "load",
+          "load-promise",
+          "loading",
+          "native",
+          "native-promise",
+          "promise",
+          "promises",
+          "register",
+          "register-promise",
+          "registration",
+          "specification"
+        ],
+        "version": "5.0.1",
+        "description": "Guaranteed way for getting a Promise. Always native Promise if available, otherwise looks for common promise libraries and loads which is installed. Allows registering custom Promise implementation in node < 0.12 versions",
+        "sanitized_name": "native-or-another",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-03-17T02:05:35.516Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/native-or-another#readme",
+          "repository": "git+https://github.com/tunnckocore/native-or-another.git",
+          "bugs": "https://github.com/tunnckocore/native-or-another/issues",
+          "npm": "https://www.npmjs.com/package/native-or-another"
+        }
+      },
+      "score": {
+        "final": 44.509674,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 25786, "weekly": 6685 },
+      "dependents": "68",
+      "updated": "2026-08-08T10:14:45.741Z",
+      "searchScore": 44.45116,
+      "package": {
+        "name": "prompt-promise",
+        "keywords": [
+          "aplus",
+          "cli",
+          "co",
+          "cojs",
+          "command",
+          "command-line",
+          "command-prompt",
+          "confirm",
+          "console",
+          "esnext",
+          "generators",
+          "input",
+          "keypress",
+          "line",
+          "mask",
+          "minimal",
+          "multiline",
+          "password",
+          "pretty",
+          "promises",
+          "promises-aplus",
+          "prompt",
+          "prompts",
+          "sane",
+          "terminal",
+          "tiny",
+          "unobtrusive",
+          "user",
+          "user-input"
+        ],
+        "version": "1.0.3",
+        "description": "Sane CLI user-input (command prompt, confirm, multiline, password) as promises, it can be used with co@4",
+        "sanitized_name": "prompt-promise",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-01-31T18:18:34.814Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/prompt-promise",
+          "repository": "git://github.com/tunnckoCore/prompt-promise.git",
+          "bugs": "https://github.com/tunnckoCore/prompt-promise/issues",
+          "npm": "https://www.npmjs.com/package/prompt-promise"
+        }
+      },
+      "score": {
+        "final": 44.45116,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 30913, "weekly": 12475 },
+      "dependents": 0,
+      "updated": "2026-08-07T09:20:59.374Z",
+      "searchScore": 44.339188,
+      "package": {
+        "name": "koa-ip-filter",
+        "keywords": [
+          "array",
+          "blacklist",
+          "custom",
+          "filter",
+          "function",
+          "glob",
+          "id",
+          "ip",
+          "ips",
+          "koa",
+          "koajs",
+          "match",
+          "matcher",
+          "micromatch",
+          "middleware",
+          "minimatch",
+          "options",
+          "pattern",
+          "regex",
+          "regexp",
+          "string",
+          "support",
+          "whitelist"
+        ],
+        "version": "3.0.0",
+        "description": "Middleware for [koa][] that filters IPs against glob patterns, RegExp, string or array of globs. Support custom `403 Forbidden` message and custom ID.",
+        "sanitized_name": "koa-ip-filter",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-10-07T04:40:21.084Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/koa-ip-filter#readme",
+          "repository": "git+https://github.com/tunnckocore/koa-ip-filter.git",
+          "bugs": "https://github.com/tunnckocore/koa-ip-filter/issues",
+          "npm": "https://www.npmjs.com/package/koa-ip-filter"
+        }
+      },
+      "score": {
+        "final": 44.339188,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 21911, "weekly": 5170 },
+      "dependents": "60",
+      "updated": "2026-08-08T10:14:08.381Z",
+      "searchScore": 43.783802,
+      "package": {
+        "name": "koa-better-body",
+        "keywords": [
+          "api",
+          "awesome",
+          "better",
+          "body",
+          "body-parser",
+          "buffer",
+          "csp",
+          "csp-report",
+          "error",
+          "extendable",
+          "feature",
+          "features",
+          "flexible",
+          "form",
+          "forms",
+          "full",
+          "full-feature",
+          "handling",
+          "json",
+          "json-api",
+          "koa",
+          "koa-better-body",
+          "multipart",
+          "parse",
+          "parser",
+          "text",
+          "urlencoded"
+        ],
+        "version": "3.3.9",
+        "description": "Full-featured [koa][] body parser! Support parsing text, buffer, json, json patch, json api, csp-report, multipart, form and urlencoded bodies. Works for koa@1, koa@2 and will work for koa@3.",
+        "sanitized_name": "koa-better-body",
+        "publisher": {
+          "email": "opensource@tunnckocore.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2020-03-28T01:29:23.820Z",
+        "links": {
+          "homepage": "https://tunnckocore.com/opensource",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/koa-better-body"
+        }
+      },
+      "score": {
+        "final": 43.783802,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 13938, "weekly": 3203 },
+      "dependents": "9",
+      "updated": "2026-08-04T10:16:23.267Z",
+      "searchScore": 42.077785,
+      "package": {
+        "name": "word-regex",
+        "keywords": [
+          "count",
+          "detect",
+          "exec",
+          "expression",
+          "find",
+          "match",
+          "regex",
+          "regexp",
+          "regular",
+          "split",
+          "test",
+          "word",
+          "words"
+        ],
+        "version": "0.1.2",
+        "description": "Regular expression for matching words in a string. Support for english, CJK and Cyrillic.",
+        "sanitized_name": "word-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "github@sellside.com", "username": "jonschlinkert" },
+          { "email": "mameto_100@mail.bg", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-03-10T17:05:19.597Z",
+        "links": {
+          "homepage": "https://github.com/regexps/word-regex",
+          "repository": "git+https://github.com/regexps/word-regex.git",
+          "bugs": "https://github.com/regexps/word-regex/issues",
+          "npm": "https://www.npmjs.com/package/word-regex"
+        }
+      },
+      "score": {
+        "final": 42.077785,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 9123, "weekly": 2876 },
+      "dependents": "9",
+      "updated": "2026-08-03T19:51:16.353Z",
+      "searchScore": 39.660107,
+      "package": {
+        "name": "write-file",
+        "keywords": [
+          "create",
+          "dir",
+          "disk",
+          "file",
+          "hard",
+          "harddisk",
+          "make",
+          "mkdir",
+          "mkdirp",
+          "save",
+          "write"
+        ],
+        "version": "1.0.0",
+        "description": "Writing a file to disk, creates intermediate directories in the destination path if they dont already exist.",
+        "sanitized_name": "write-file",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-11-02T23:17:10.854Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/write-file#readme",
+          "repository": "git+https://github.com/tunnckocore/write-file.git",
+          "bugs": "https://github.com/tunnckocore/write-file/issues",
+          "npm": "https://www.npmjs.com/package/write-file"
+        }
+      },
+      "score": {
+        "final": 39.660107,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 9191, "weekly": 2200 },
+      "dependents": "19",
+      "updated": "2026-08-06T09:16:09.872Z",
+      "searchScore": 39.343353,
+      "package": {
+        "name": "body-parse",
+        "keywords": [],
+        "version": "0.1.0",
+        "sanitized_name": "body-parse",
+        "publisher": {
+          "email": "mameto2011@gmail.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2018-09-06T01:44:03.200Z",
+        "links": { "npm": "https://www.npmjs.com/package/body-parse" }
+      },
+      "score": {
+        "final": 39.343353,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 7186, "weekly": 2145 },
+      "dependents": "103",
+      "updated": "2026-08-04T08:26:07.747Z",
+      "searchScore": 38.536972,
+      "package": {
+        "name": "is-hexcolor",
+        "keywords": [
+          "check",
+          "color",
+          "colors",
+          "css",
+          "css-color",
+          "hex",
+          "hex-color",
+          "hexcolor",
+          "regex",
+          "regexp",
+          "validate",
+          "value"
+        ],
+        "version": "1.0.0",
+        "description": "Check that given value is valid hex color, using `hex-color-regex` - the best regex for matching hex color values",
+        "sanitized_name": "is-hexcolor",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-06-01T15:22:10.817Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/is-hexcolor#readme",
+          "repository": "git+https://github.com/tunnckocore/is-hexcolor.git",
+          "bugs": "https://github.com/tunnckocore/is-hexcolor/issues",
+          "npm": "https://www.npmjs.com/package/is-hexcolor"
+        }
+      },
+      "score": {
+        "final": 38.536972,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 6398, "weekly": 1519 },
+      "dependents": "9",
+      "updated": "2026-08-06T09:06:12.401Z",
+      "searchScore": 37.99041,
+      "package": {
+        "name": "parse-commit-message",
+        "keywords": [
+          "commit message parser",
+          "commit messages",
+          "commit-message",
+          "commit-parser",
+          "commits",
+          "commits-parser",
+          "conventional",
+          "conventional-commits",
+          "conventionalcommits",
+          "developer-experience",
+          "development",
+          "dx",
+          "hela",
+          "parse commit message",
+          "parse-commit",
+          "parse-commit-message",
+          "parse-commits",
+          "parser",
+          "tunnckocore-oss",
+          "tunnckocorehq"
+        ],
+        "version": "5.0.4",
+        "description": "Extensible parser for git commit messages following Conventional Commits Specification",
+        "sanitized_name": "parse-commit-message",
+        "publisher": {
+          "email": "equator-owl-studio@duck.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "equator-owl-studio@duck.com", "username": "tunnckocore" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2024-10-22T02:39:03.427Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/opensource/tree/master/@packages/parse-commit-message",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/parse-commit-message"
+        }
+      },
+      "score": {
+        "final": 37.99041,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 6123, "weekly": 1563 },
+      "dependents": "15",
+      "updated": "2026-08-05T10:36:14.234Z",
+      "searchScore": 37.868538,
+      "package": {
+        "name": "@tunnckocore/execa",
+        "keywords": [
+          "bin",
+          "binaries",
+          "binary",
+          "child",
+          "concurrency",
+          "develop",
+          "exec",
+          "execa",
+          "execfile",
+          "execute",
+          "file",
+          "fork",
+          "local",
+          "npm",
+          "parallel",
+          "path",
+          "process",
+          "sequence",
+          "series",
+          "shell",
+          "spawn",
+          "tunnckocorehq"
+        ],
+        "version": "6.0.0",
+        "description": "Thin layer on top of `execa` that allows executing multiple commands in parallel or in sequence with control for concurrency",
+        "sanitized_name": "@tunnckocore/execa",
+        "publisher": {
+          "email": "npm@tunnckocore.anonaddy.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "npm@tunnckocore.anonaddy.com", "username": "tunnckocore" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2022-07-02T12:44:22.560Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/opensource/tree/master/@tunnckocore/execa",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/@tunnckocore/execa"
+        }
+      },
+      "score": {
+        "final": 37.868538,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 5787, "weekly": 829 },
+      "dependents": "8",
+      "updated": "2026-08-08T09:16:14.156Z",
+      "searchScore": 37.602375,
+      "package": {
+        "name": "current-week-number",
+        "keywords": [
+          "calendar",
+          "count",
+          "counts",
+          "current",
+          "date",
+          "dates",
+          "datetime",
+          "format",
+          "get",
+          "js",
+          "month",
+          "months",
+          "real",
+          "times",
+          "util",
+          "utilities",
+          "utility",
+          "utils",
+          "week",
+          "weekday",
+          "weeks",
+          "year",
+          "years"
+        ],
+        "version": "1.0.7",
+        "description": "Get current week number of the current year,given Date format string or Date object.",
+        "sanitized_name": "current-week-number",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "sindresorhus@gmail.com", "username": "sindresorhus" },
+          { "email": "github@sellside.com", "username": "jonschlinkert" },
+          { "email": "mameto2011@gmail.com", "username": "olstenlarck" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-03-02T22:14:00.184Z",
+        "links": {
+          "homepage": "https://github.com/datetime/current-week-number",
+          "repository": "git://github.com/datetime/current-week-number.git",
+          "bugs": "https://github.com/datetime/current-week-number/issues",
+          "npm": "https://www.npmjs.com/package/current-week-number"
+        }
+      },
+      "score": {
+        "final": 37.602375,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 5288, "weekly": 1144 },
+      "dependents": "3",
+      "updated": "2026-08-03T22:11:14.182Z",
+      "searchScore": 37.093807,
+      "package": {
+        "name": "youtube-regex",
+        "keywords": [
+          "youtube",
+          "youtu.be",
+          "regex",
+          "regexp",
+          "regexps",
+          "youtube regex",
+          "video id",
+          "id",
+          "video",
+          "url"
+        ],
+        "version": "1.0.5",
+        "description": "The correct Youtube video id regex! Regex done right!",
+        "sanitized_name": "youtube-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-11-18T00:04:17.265Z",
+        "links": {
+          "homepage": "https://github.com/regexps/youtube-regex#readme",
+          "repository": "git://github.com/regexps/youtube-regex.git",
+          "bugs": "https://github.com/regexps/youtube-regex/issues",
+          "npm": "https://www.npmjs.com/package/youtube-regex"
+        }
+      },
+      "score": {
+        "final": 37.093807,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 5858, "weekly": 1343 },
+      "dependents": "7",
+      "updated": "2026-08-05T02:41:13.241Z",
+      "searchScore": 37.013294,
+      "package": {
+        "name": "get-function-arguments",
+        "keywords": [
+          "args",
+          "arguments",
+          "arrow",
+          "arrow-function",
+          "arrows",
+          "dependency",
+          "deps",
+          "fn",
+          "func",
+          "function",
+          "function-arguments",
+          "generator",
+          "generators",
+          "get",
+          "inject",
+          "injectors",
+          "parameters",
+          "params",
+          "regular",
+          "useful"
+        ],
+        "version": "1.0.0",
+        "description": "Get function arguments, useful for and used in dependency injectors. Works for regular functions, generator functions and arrow functions.",
+        "sanitized_name": "get-function-arguments",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2016-03-18T04:18:22.777Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/function-arguments#readme",
+          "repository": "git+https://github.com/tunnckocore/function-arguments.git",
+          "bugs": "https://github.com/tunnckocore/function-arguments/issues",
+          "npm": "https://www.npmjs.com/package/get-function-arguments"
+        }
+      },
+      "score": {
+        "final": 37.013294,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4640, "weekly": 789 },
+      "dependents": "1",
+      "updated": "2026-08-08T08:36:16.759Z",
+      "searchScore": 36.849228,
+      "package": {
+        "name": "stack-utils-node-internals",
+        "keywords": [
+          "callsites",
+          "clean",
+          "cleanup",
+          "help",
+          "internal",
+          "internals",
+          "natives",
+          "node",
+          "node-internals",
+          "regex",
+          "regexp",
+          "stack",
+          "stacktrace",
+          "traces",
+          "util",
+          "utils"
+        ],
+        "version": "1.0.1",
+        "description": "An array of node internals that can be cleaned up from stack traces",
+        "sanitized_name": "stack-utils-node-internals",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-03-10T17:35:01.821Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/stack-utils-node-internals#readme",
+          "repository": "git+https://github.com/tunnckocore/stack-utils-node-internals.git",
+          "bugs": "https://github.com/tunnckocore/stack-utils-node-internals/issues",
+          "npm": "https://www.npmjs.com/package/stack-utils-node-internals"
+        }
+      },
+      "score": {
+        "final": 36.849228,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4340, "weekly": 882 },
+      "dependents": "3",
+      "updated": "2026-08-04T06:06:10.508Z",
+      "searchScore": 36.164238,
+      "package": {
+        "name": "collect-mentions",
+        "keywords": [],
+        "version": "2.0.1",
+        "sanitized_name": "collect-mentions",
+        "publisher": {
+          "email": "equator-owl-studio@duck.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "equator-owl-studio@duck.com", "username": "tunnckocore" }
+        ],
+        "date": "2024-10-21T19:17:25.866Z",
+        "links": { "npm": "https://www.npmjs.com/package/collect-mentions" }
+      },
+      "score": {
+        "final": 36.164238,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4739, "weekly": 827 },
+      "dependents": "13",
+      "updated": "2026-08-08T08:36:11.036Z",
+      "searchScore": 36.15141,
+      "package": {
+        "name": "clean-stacktrace",
+        "keywords": ["clean", "err", "error", "stack", "trace", "traces"],
+        "version": "1.1.0",
+        "description": "Clean up error stack traces from node internals",
+        "sanitized_name": "clean-stacktrace",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2017-03-10T18:11:06.388Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/clean-stacktrace#readme",
+          "repository": "git+https://github.com/tunnckocore/clean-stacktrace.git",
+          "bugs": "https://github.com/tunnckocore/clean-stacktrace/issues",
+          "npm": "https://www.npmjs.com/package/clean-stacktrace"
+        }
+      },
+      "score": {
+        "final": 36.15141,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4196, "weekly": 2643 },
+      "dependents": 0,
+      "updated": "2026-08-07T01:41:10.035Z",
+      "searchScore": 36.08635,
+      "package": {
+        "name": "@tunnckocore/pi-gpt-fast-mode",
+        "keywords": [
+          "pi-package",
+          "pi-extension",
+          "gpt-5.4",
+          "gpt-5.5",
+          "gpt-5.6",
+          "codex",
+          "fast-mode"
+        ],
+        "version": "0.4.0",
+        "description": "A super basic Pi extension that toggles GPT-5.4 / GPT-5.5 / GPT-5.6 Fast mode with /fast (the default 'priority'), nothing else - one file.",
+        "sanitized_name": "@tunnckocore/pi-gpt-fast-mode",
+        "publisher": {
+          "email": "equator-owl-studio@duck.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "equator-owl-studio@duck.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2026-07-10T01:20:09.284Z",
+        "links": {
+          "repository": "git+https://github.com/tunnckoCore/pi-gpt-fast-mode.git",
+          "npm": "https://www.npmjs.com/package/@tunnckocore/pi-gpt-fast-mode"
+        }
+      },
+      "score": {
+        "final": 36.08635,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4276, "weekly": 1048 },
+      "dependents": "1",
+      "updated": "2026-08-05T16:36:34.440Z",
+      "searchScore": 36.014057,
+      "package": {
+        "name": "all-module-paths",
+        "keywords": [
+          "bin",
+          "bin-paths",
+          "binaries",
+          "developer-experience",
+          "development",
+          "dx",
+          "global",
+          "global-modules",
+          "hela",
+          "javascript",
+          "local",
+          "local-modules",
+          "module",
+          "module-paths",
+          "npm",
+          "package-paths",
+          "packages",
+          "paths",
+          "pnpm",
+          "tunnckocore-oss",
+          "tunnckocorehq",
+          "utils",
+          "yarn"
+        ],
+        "version": "0.10.7",
+        "description": "Get all possible javascript (npm/yarn/pnpm) global or local, binaries or packages paths, e.g. node_modules and node_modules/.bin. Also works for those using NVM or such",
+        "sanitized_name": "all-module-paths",
+        "publisher": {
+          "email": "opensource@tunnckocore.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" },
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" }
+        ],
+        "license": "MPL-2.0",
+        "date": "2020-03-28T01:29:16.809Z",
+        "links": {
+          "homepage": "https://tunnckocore.com/opensource",
+          "repository": "git+https://github.com/tunnckoCore/opensource.git",
+          "bugs": "https://github.com/tunnckoCore/opensource/issues",
+          "npm": "https://www.npmjs.com/package/all-module-paths"
+        }
+      },
+      "score": {
+        "final": 36.014057,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 4080, "weekly": 850 },
+      "dependents": "11",
+      "updated": "2026-08-03T21:11:27.703Z",
+      "searchScore": 35.873585,
+      "package": {
+        "name": "mentions-regex",
+        "keywords": [
+          "correct",
+          "expression",
+          "facebook",
+          "github",
+          "google",
+          "mention",
+          "mentions",
+          "regex",
+          "regexp",
+          "regexps",
+          "regular",
+          "regular expression",
+          "regular expressions",
+          "twitter",
+          "user"
+        ],
+        "version": "2.0.3",
+        "description": "100% twitter compatible `@mentions` regex! Regular expression for matching `@username` mentions, as used on twitter, facebook, github, etc.",
+        "sanitized_name": "mentions-regex",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "github@sellside.com", "username": "jonschlinkert" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-05-04T20:56:10.554Z",
+        "links": {
+          "homepage": "https://github.com/regexps/mentions-regex#readme",
+          "repository": "git://github.com/regexps/mentions-regex.git",
+          "bugs": "https://github.com/regexps/mentions-regex/issues",
+          "npm": "https://www.npmjs.com/package/mentions-regex"
+        }
+      },
+      "score": {
+        "final": 35.873585,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 3882, "weekly": 341 },
+      "dependents": "10",
+      "updated": "2026-08-06T10:06:13.268Z",
+      "searchScore": 35.323772,
+      "package": {
+        "name": "dush",
+        "keywords": [
+          "browser",
+          "browserify",
+          "cjs",
+          "client",
+          "commonjs",
+          "compatible",
+          "emit",
+          "emitter",
+          "event",
+          "event-emitter",
+          "events",
+          "functional",
+          "lightweight",
+          "micro",
+          "microscopic",
+          "mini",
+          "minimal",
+          "nodejs",
+          "pubsub",
+          "small",
+          "subscribe",
+          "tiny",
+          "webpack"
+        ],
+        "version": "3.1.1",
+        "description": "Microscopic & functional event emitter in ~350 bytes, extensible through plugins",
+        "sanitized_name": "dush",
+        "publisher": {
+          "email": "npm@tunnckocore.anonaddy.com",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "npm@tunnckocore.anonaddy.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2024-05-16T22:19:11.473Z",
+        "links": {
+          "homepage": "https://github.com/tunnckoCore/dush#readme",
+          "repository": "git+https://github.com/tunnckoCore/dush.git",
+          "bugs": "https://github.com/tunnckoCore/dush/issues",
+          "npm": "https://www.npmjs.com/package/dush"
+        }
+      },
+      "score": {
+        "final": 35.323772,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 3549, "weekly": 489 },
+      "dependents": "5",
+      "updated": "2026-08-07T08:11:08.597Z",
+      "searchScore": 35.296715,
+      "package": {
+        "name": "is-es6-generator-function",
+        "keywords": [
+          "check",
+          "es2015",
+          "es6",
+          "es7",
+          "function",
+          "functions",
+          "generator",
+          "generatorfunction",
+          "generators",
+          "is",
+          "is-function",
+          "is-generator",
+          "is-generator-function",
+          "next",
+          "validate"
+        ],
+        "version": "1.0.0",
+        "description": "Check that given value is `GeneratorFunction`",
+        "sanitized_name": "is-es6-generator-function",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-05-26T04:14:10.872Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/is-es6-generator-function#readme",
+          "repository": "git+https://github.com/tunnckocore/is-es6-generator-function.git",
+          "bugs": "https://github.com/tunnckocore/is-es6-generator-function/issues",
+          "npm": "https://www.npmjs.com/package/is-es6-generator-function"
+        }
+      },
+      "score": {
+        "final": 35.296715,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    },
+    {
+      "downloads": { "monthly": 3607, "weekly": 486 },
+      "dependents": "2",
+      "updated": "2026-08-07T08:11:12.408Z",
+      "searchScore": 35.293877,
+      "package": {
+        "name": "is-generator-function-name",
+        "keywords": [
+          "check",
+          "gen",
+          "next",
+          "es2015",
+          "es6",
+          "es7",
+          "function",
+          "generator",
+          "generators",
+          "generator-function",
+          "generatorfunction",
+          "has",
+          "is-generator",
+          "is-generator-function",
+          "validate",
+          "value"
+        ],
+        "version": "1.0.0",
+        "description": "Check that given value have `GeneratorFunction` name or displayName.",
+        "sanitized_name": "is-generator-function-name",
+        "publisher": {
+          "email": "mameto_100@mail.bg",
+          "username": "tunnckocore"
+        },
+        "maintainers": [
+          { "email": "super.ludiq@gmail.com", "username": "vanchoy" },
+          { "email": "mameto2011@gmail.com", "username": "tunnckocore" }
+        ],
+        "license": "MIT",
+        "date": "2015-05-26T02:35:54.705Z",
+        "links": {
+          "homepage": "https://github.com/tunnckocore/is-generator-function-name#readme",
+          "repository": "git+https://github.com/tunnckocore/is-generator-function-name.git",
+          "bugs": "https://github.com/tunnckocore/is-generator-function-name/issues",
+          "npm": "https://www.npmjs.com/package/is-generator-function-name"
+        }
+      },
+      "score": {
+        "final": 35.293877,
+        "detail": { "popularity": 1, "quality": 1, "maintenance": 1 }
+      },
+      "flags": { "insecure": 0 }
+    }
+  ],
+  "total": 528,
+  "time": "2026-08-09T18:50:37.316Z"
+}

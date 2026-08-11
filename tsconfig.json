@@ -7,5 +7,6 @@
     "esModuleInterop": true,
     "types": ["bun", "node"]
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "exclude": ["fixtures/**"]
 }

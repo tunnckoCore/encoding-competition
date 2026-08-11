@@ -17,6 +17,7 @@ const ignores = [
   "skills/**",
   "public/*-downloads.*",
   "fixtures/code/**",
+  "fixtures/prose/**",
   "fixture.json",
 ];
 

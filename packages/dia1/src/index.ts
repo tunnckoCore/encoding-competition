@@ -11,6 +11,7 @@ import {
   tokenIndex,
   tokenPrefix,
 } from "./alphabet.ts";
+import { decodeDia2Envelope, encodeDia2Envelope } from "./dia2.ts";
 
 const FORMAT = "dia1";
 const BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -27,6 +28,7 @@ const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export type DialectOptions = {
   deduplicate?: boolean;
+  dia2?: boolean;
   words?: readonly string[];
   minWordBytes?: number;
   minWordOccurrences?: number;
@@ -41,6 +43,7 @@ type JsonValue = JsonScalar | JsonValue[] | JsonObject;
 
 type ResolvedOptions = {
   deduplicate: boolean;
+  dia2: boolean;
   words: string[];
   minWordBytes: number;
   minWordOccurrences: number;
@@ -154,6 +157,7 @@ type Header = {
   expandedBytes: number;
   keyCount: number;
   payload: string;
+  prefixBytes: number;
   shapeCount: number;
   wordCount: number;
 };
@@ -190,10 +194,24 @@ export function encodeDialect(
     dialect.shapes.length,
   ].join(".");
 
-  return header + ":" + tables + encoded.body;
+  const dia1Header = header + ":" + tables;
+
+  return resolved.dia2
+    ? encodeDia2Envelope(dia1Header, encoded.body, MAX_EXPANDED_BYTES)
+    : dia1Header + encoded.body;
 }
 
 export function decodeDialect(encoded: string): unknown {
+  if (encoded.startsWith("dia2.")) {
+    const envelope = decodeDia2Envelope(encoded, MAX_EXPANDED_BYTES);
+
+    return decodeDia1(envelope.dia1, envelope.headerBytes);
+  }
+
+  return decodeDia1(encoded);
+}
+
+function decodeDia1(encoded: string, expectedHeaderBytes?: number): unknown {
   const header = parseHeader(encoded);
   if (header.expandedBytes > MAX_EXPANDED_BYTES) {
     throw new Error("dialect expanded payload exceeds the decoder limit");
@@ -210,6 +228,12 @@ export function decodeDialect(encoded: string): unknown {
     words,
     exactValues,
   );
+  if (
+    expectedHeaderBytes !== undefined &&
+    header.prefixBytes + reader.cursor !== expectedHeaderBytes
+  ) {
+    throw new Error("dia2 envelope does not contain exactly one dia1 header");
+  }
   const tables = { exactValues, keys, shapes, words };
   const budget: DecodeBudget = {
     bytesRemaining: header.expandedBytes,
@@ -235,6 +259,7 @@ export function decodeDialect(encoded: string): unknown {
 
 function resolveOptions(options: DialectOptions): ResolvedOptions {
   const deduplicate = options.deduplicate ?? true;
+  const dia2 = options.dia2 ?? false;
   const minWordBytes = options.minWordBytes ?? 4;
   const minWordOccurrences = options.minWordOccurrences ?? 3;
   const maxWords = options.maxWords ?? tokenCapacity;
@@ -251,6 +276,7 @@ function resolveOptions(options: DialectOptions): ResolvedOptions {
 
   return {
     deduplicate,
+    dia2,
     words,
     minWordBytes,
     minWordOccurrences,
@@ -1516,6 +1542,7 @@ function parseHeader(encoded: string): Header {
     expandedBytes,
     keyCount,
     payload: encoded.slice(match[0].length),
+    prefixBytes: match[0].length,
     shapeCount,
     wordCount,
   };

@@ -1,22 +1,22 @@
-# Claude VS. Codex/ChatGPT/GPT-5.6 Sol
+# Claude vs. Codex / ChatGPT / GPT-5.6 Sol
 
-The ultimate competition. Who will design and implement the best encoding/decoding/compacting text format.
+The ultimate competition. Who will design and implement the best text format for encoding, decoding, and compacting structured data?
 
-It's like a hackaton, for our AIs.
+It's like a hackathon for our AIs.
 
-I started few months ago with HBS3, it's included here too and there is spec, conformance tests and etc. But it had different features designed for specific case - it has per-slot integrity/checksum, fault-tolerant, streaming, typed schema, validation, massive deduplication. It's great, but still big in output size.
+A few months ago, I started with HBS3. It's included here too, along with its spec, conformance tests, and more. But it was designed for a different, specific use case: per-slot integrity/checksums, fault tolerance, streaming, typed schemas, validation, and massive deduplication. It's great, but its output is still big.
 
-The raw minified JSON fixture is 271kb. HBS3 outputs 191kb.
+The raw minified JSON fixture is 271 KB. HBS3 outputs 191 KB.
 
-Then i asked GPT-5.6 Sol Ultra Fast mode. Told it to be creative, bold, innovative, inventor, and linked my HBS3 to see what's possible. It designed TGJ and DIA1.
+Then I asked GPT-5.6 Sol in Ultra & Fast mode. I told it to be creative, bold, innovative - to be an inventor - and linked my HBS3 to see what's possible. It designed TGJ and DIA1.
 
-The TGJ size is 115kb. The DIA1 is insane, at 91.9kb - it is a full LANGUAGE - an alphabet, a grammer, constructs, phrases, contextual meanings. And it uses emojis as the alphabet. And it can accept another alphabet and output even smaller results. But it takes 1.9s to encode.
+TGJ's output is 115 KB. DIA1 is insane at 91.9 KB - it is a full LANGUAGE: an alphabet, a grammar, constructs, phrases, and contextual meanings. It uses emojis as the alphabet, and it can accept another alphabet to produce even smaller results. But it takes 1.9 seconds to encode.
 
 ---
 
 ## The Idea
 
-The idea is to have the smallest possible output. To be an encoding and decoding format that is ASCII/text based only.
+The idea is to have the smallest possible output while remaining a textual, non-binary encoding and decoding format.
 
 Yes, the sizes are bytes, not characters.
 

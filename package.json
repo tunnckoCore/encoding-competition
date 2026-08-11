@@ -8,6 +8,10 @@
     "prepare": "vp config",
     "ready": "vp check --fix && vp test --run && vp run -r build"
   },
+  "dependencies": {
+    "@toon-format/cli": "catalog:",
+    "@toon-format/toon": "catalog:"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@types/node": "catalog:",

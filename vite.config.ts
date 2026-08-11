@@ -16,6 +16,7 @@ const ignores = [
   ".vite-hooks/**/*",
   "skills/**",
   "public/*-downloads.*",
+  "fixture.json",
 ];
 
 export default defineConfig({

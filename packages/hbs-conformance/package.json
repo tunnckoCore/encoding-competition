@@ -1,0 +1,24 @@
+{
+  "name": "@tunnckocore/hbs-conformance",
+  "version": "0.0.0",
+  "description": "HBS3 cross-language conformance vectors and Bun-based encode/decode command checker.",
+  "license": "Apache-2.0",
+  "bin": {
+    "hbs3-conformance": "./src/cli.ts"
+  },
+  "files": [
+    "src"
+  ],
+  "type": "module",
+  "scripts": {
+    "check-commands": "bun src/cli.ts check-commands",
+    "generate": "bun src/generate.ts",
+    "print-vectors": "bun src/cli.ts print-vectors"
+  },
+  "dependencies": {
+    "@tunnckocore/hbs": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:"
+  }
+}

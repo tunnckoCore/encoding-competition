@@ -1,0 +1,5669 @@
+{
+  "format": "hbs3-conformance-v1",
+  "spec": "HBS3 draft",
+  "generatedBy": "@tunnckocore/hbs",
+  "notes": [
+    "All length fields are UTF-8 byte counts.",
+    "integrityHash commits to <bodyLen>.<schemaLen>.<keysLen>.<guardsLen>:<body>.",
+    "The Bun conformance CLI can run external encode/decode commands against every vector."
+  ],
+  "commandContract": {
+    "encode": {
+      "stdin": {
+        "id": "vector id",
+        "options": "HBS3 encode options",
+        "input": "JSON input to encode"
+      },
+      "stdout": "HBS3 text"
+    },
+    "decode": {
+      "stdin": {
+        "id": "vector id",
+        "options": "HBS3 decode options",
+        "hbs": "HBS3 text"
+      },
+      "stdout": "DecodeResult JSON"
+    },
+    "expectedFailure": "Exit non-zero and write an error message to stderr/stdout."
+  },
+  "vectors": [
+    {
+      "id": "object-basic-unguarded",
+      "kind": "roundtrip",
+      "description": "Sorted object keys with booleans, null, number, and string slots.",
+      "features": ["object", "key-order", "unguarded", "sha256-integrity"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice",
+        "count": 3,
+        "active": false,
+        "meta": null
+      },
+      "hbs": "hbs3.56917512dcbc7104.50.20.22.0:{@0f@1\"0_1@2z@3'0_7}active,count,meta,name3\"alice\"",
+      "envelope": {
+        "integrityHash": "56917512dcbc7104",
+        "bodyLen": 50,
+        "schemaLen": 20,
+        "keysLen": 22,
+        "guardsLen": 0,
+        "body": "{@0f@1\"0_1@2z@3'0_7}active,count,meta,name3\"alice\"",
+        "T": "{@0f@1\"0_1@2z@3'0_7}",
+        "K": "active,count,meta,name",
+        "G": "",
+        "V": "3\"alice\"",
+        "payload": "50.20.22.0:{@0f@1\"0_1@2z@3'0_7}active,count,meta,name3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "active": false,
+          "count": 3,
+          "meta": null,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "default-options",
+      "kind": "roundtrip",
+      "description": "Default options produce SHA-256 integrity and no guards.",
+      "features": ["defaults", "sha256-integrity", "unguarded"],
+      "options": {},
+      "input": {
+        "name": "alice"
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"alice\"",
+      "envelope": {
+        "integrityHash": "fec323451ec7e3f1",
+        "bodyLen": 19,
+        "schemaLen": 8,
+        "keysLen": 4,
+        "guardsLen": 0,
+        "body": "{@0'0_7}name\"alice\"",
+        "T": "{@0'0_7}",
+        "K": "name",
+        "G": "",
+        "V": "\"alice\"",
+        "payload": "19.8.4.0:{@0'0_7}name\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "empty-object",
+      "kind": "roundtrip",
+      "description": "Empty object root has an empty key dictionary and value stream.",
+      "features": ["object", "empty", "no-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {},
+      "hbs": "hbs3.dc94fde957cbf825.2.2.0.0:{}",
+      "envelope": {
+        "integrityHash": "dc94fde957cbf825",
+        "bodyLen": 2,
+        "schemaLen": 2,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "{}",
+        "T": "{}",
+        "K": "",
+        "G": "",
+        "V": "",
+        "payload": "2.2.0.0:{}"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "empty-array",
+      "kind": "roundtrip",
+      "description": "Empty array root has an empty key dictionary and value stream.",
+      "features": ["array", "empty", "no-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [],
+      "hbs": "hbs3.1923617211efff94.2.2.0.0:[]",
+      "envelope": {
+        "integrityHash": "1923617211efff94",
+        "bodyLen": 2,
+        "schemaLen": 2,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "[]",
+        "T": "[]",
+        "K": "",
+        "G": "",
+        "V": "",
+        "payload": "2.2.0.0:[]"
+      },
+      "expectedDecode": {
+        "value": [],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "array-scalar-order",
+      "kind": "roundtrip",
+      "description": "Array order is preserved for mixed scalar elements.",
+      "features": ["array", "order", "scalar-slots", "literals"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [2, 1, 0, "x", false, null, true],
+      "hbs": "hbs3.d1713d900faa7663.27.21.0.0:[\"0_1\"1_1\"2_1'0_3fzt]210\"x\"",
+      "envelope": {
+        "integrityHash": "d1713d900faa7663",
+        "bodyLen": 27,
+        "schemaLen": 21,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "[\"0_1\"1_1\"2_1'0_3fzt]210\"x\"",
+        "T": "[\"0_1\"1_1\"2_1'0_3fzt]",
+        "K": "",
+        "G": "",
+        "V": "210\"x\"",
+        "payload": "27.21.0.0:[\"0_1\"1_1\"2_1'0_3fzt]210\"x\""
+      },
+      "expectedDecode": {
+        "value": [2, 1, 0, "x", false, null, true],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "nested-mixed-objects-arrays",
+      "kind": "roundtrip",
+      "description": "Nested objects and arrays with lexicographic object key traversal.",
+      "features": ["object", "array", "nested", "key-order"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "z": [
+          {
+            "b": 2,
+            "a": 1
+          }
+        ],
+        "a": {
+          "deep": [true, null, "leaf"]
+        },
+        "m": "middle"
+      },
+      "hbs": "hbs3.98c85d271e626090.70.42.12.0:{@0{@3[tz'0_6]}@1'1_8@2[~2.1:@0\"1@4\"1:01]}a,m,z,deep,b\"leaf\"\"middle\"12",
+      "envelope": {
+        "integrityHash": "98c85d271e626090",
+        "bodyLen": 70,
+        "schemaLen": 42,
+        "keysLen": 12,
+        "guardsLen": 0,
+        "body": "{@0{@3[tz'0_6]}@1'1_8@2[~2.1:@0\"1@4\"1:01]}a,m,z,deep,b\"leaf\"\"middle\"12",
+        "T": "{@0{@3[tz'0_6]}@1'1_8@2[~2.1:@0\"1@4\"1:01]}",
+        "K": "a,m,z,deep,b",
+        "G": "",
+        "V": "\"leaf\"\"middle\"12",
+        "payload": "70.42.12.0:{@0{@3[tz'0_6]}@1'1_8@2[~2.1:@0\"1@4\"1:01]}a,m,z,deep,b\"leaf\"\"middle\"12"
+      },
+      "expectedDecode": {
+        "value": {
+          "a": {
+            "deep": [true, null, "leaf"]
+          },
+          "m": "middle",
+          "z": [
+            {
+              "a": 1,
+              "b": 2
+            }
+          ]
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "deduplicated-scalar-slots",
+      "kind": "roundtrip",
+      "description": "Repeated canonical string and number scalar values share slot ids.",
+      "features": ["dedupe", "slot-reuse", "object"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "a": "same",
+        "b": "same",
+        "c": 42,
+        "d": 42,
+        "e": "same"
+      },
+      "hbs": "hbs3.713f025092f02a4f.49.32.9.0:{@0'0_6@1'0_6@2\"0_2@3\"0_2@4'0_6}a,b,c,d,e\"same\"42",
+      "envelope": {
+        "integrityHash": "713f025092f02a4f",
+        "bodyLen": 49,
+        "schemaLen": 32,
+        "keysLen": 9,
+        "guardsLen": 0,
+        "body": "{@0'0_6@1'0_6@2\"0_2@3\"0_2@4'0_6}a,b,c,d,e\"same\"42",
+        "T": "{@0'0_6@1'0_6@2\"0_2@3\"0_2@4'0_6}",
+        "K": "a,b,c,d,e",
+        "G": "",
+        "V": "\"same\"42",
+        "payload": "49.32.9.0:{@0'0_6@1'0_6@2\"0_2@3\"0_2@4'0_6}a,b,c,d,e\"same\"42"
+      },
+      "expectedDecode": {
+        "value": {
+          "a": "same",
+          "b": "same",
+          "c": 42,
+          "d": 42,
+          "e": "same"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "unicode-byte-length",
+      "kind": "roundtrip",
+      "description": "UTF-8 byte length handling for escaped text and non-ASCII scalar values.",
+      "features": ["utf8-lengths", "strings", "escapes", "unguarded"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "emoji": "😀",
+        "escaped": "line\nbreak",
+        "plain": "z"
+      },
+      "hbs": "hbs3.523df2f1f0dda134.62.21.19.0:{@0'0_6@1'1_13@2'2_3}emoji,escaped,plain\"😀\"\"line\\nbreak\"\"z\"",
+      "envelope": {
+        "integrityHash": "523df2f1f0dda134",
+        "bodyLen": 62,
+        "schemaLen": 21,
+        "keysLen": 19,
+        "guardsLen": 0,
+        "body": "{@0'0_6@1'1_13@2'2_3}emoji,escaped,plain\"😀\"\"line\\nbreak\"\"z\"",
+        "T": "{@0'0_6@1'1_13@2'2_3}",
+        "K": "emoji,escaped,plain",
+        "G": "",
+        "V": "\"😀\"\"line\\nbreak\"\"z\"",
+        "payload": "62.21.19.0:{@0'0_6@1'1_13@2'2_3}emoji,escaped,plain\"😀\"\"line\\nbreak\"\"z\""
+      },
+      "expectedDecode": {
+        "value": {
+          "emoji": "😀",
+          "escaped": "line\nbreak",
+          "plain": "z"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "control-character-escaping",
+      "kind": "roundtrip",
+      "description": "Canonical JSON string escaping for controls, quote, and backslash.",
+      "features": ["strings", "escapes", "control-characters"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "controls": "\u0000\u001f\b\t\n\f\r",
+        "quoteSlash": "\"\\"
+      },
+      "hbs": "hbs3.93e47f87f7419f97.64.15.19.0:{@0'0_24@1'1_6}controls,quoteSlash\"\\u0000\\u001f\\b\\t\\n\\f\\r\"\"\\\"\\\\\"",
+      "envelope": {
+        "integrityHash": "93e47f87f7419f97",
+        "bodyLen": 64,
+        "schemaLen": 15,
+        "keysLen": 19,
+        "guardsLen": 0,
+        "body": "{@0'0_24@1'1_6}controls,quoteSlash\"\\u0000\\u001f\\b\\t\\n\\f\\r\"\"\\\"\\\\\"",
+        "T": "{@0'0_24@1'1_6}",
+        "K": "controls,quoteSlash",
+        "G": "",
+        "V": "\"\\u0000\\u001f\\b\\t\\n\\f\\r\"\"\\\"\\\\\"",
+        "payload": "64.15.19.0:{@0'0_24@1'1_6}controls,quoteSlash\"\\u0000\\u001f\\b\\t\\n\\f\\r\"\"\\\"\\\\\""
+      },
+      "expectedDecode": {
+        "value": {
+          "controls": "\u0000\u001f\b\t\n\f\r",
+          "quoteSlash": "\"\\"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "reserved-schema-characters-in-string",
+      "kind": "roundtrip",
+      "description": "Reserved schema and section delimiter characters inside strings are sliced only by declared byte length.",
+      "features": ["strings", "reserved-characters", "value-stream"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "text": "@{}[]'\"_:,\\\n"
+      },
+      "hbs": "hbs3.57d6ae13e046eedc.30.9.4.0:{@0'0_17}text\"@{}[]'\\\"_:,\\\\\\n\"",
+      "envelope": {
+        "integrityHash": "57d6ae13e046eedc",
+        "bodyLen": 30,
+        "schemaLen": 9,
+        "keysLen": 4,
+        "guardsLen": 0,
+        "body": "{@0'0_17}text\"@{}[]'\\\"_:,\\\\\\n\"",
+        "T": "{@0'0_17}",
+        "K": "text",
+        "G": "",
+        "V": "\"@{}[]'\\\"_:,\\\\\\n\"",
+        "payload": "30.9.4.0:{@0'0_17}text\"@{}[]'\\\"_:,\\\\\\n\""
+      },
+      "expectedDecode": {
+        "value": {
+          "text": "@{}[]'\"_:,\\\n"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "multilingual-unicode-strings",
+      "kind": "roundtrip",
+      "description": "Multi-byte UTF-8 strings across scripts preserve exact scalar content.",
+      "features": ["strings", "utf8-lengths", "unicode"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "greek": "γειά",
+        "japanese": "こんにちは",
+        "arabic": "مرحبا",
+        "emoji": "🧪"
+      },
+      "hbs": "hbs3.a1304bbb58e99bb3.101.29.27.0:{@0'0_12@1'1_6@2'2_10@3'3_17}arabic,emoji,greek,japanese\"مرحبا\"\"🧪\"\"γειά\"\"こんにちは\"",
+      "envelope": {
+        "integrityHash": "a1304bbb58e99bb3",
+        "bodyLen": 101,
+        "schemaLen": 29,
+        "keysLen": 27,
+        "guardsLen": 0,
+        "body": "{@0'0_12@1'1_6@2'2_10@3'3_17}arabic,emoji,greek,japanese\"مرحبا\"\"🧪\"\"γειά\"\"こんにちは\"",
+        "T": "{@0'0_12@1'1_6@2'2_10@3'3_17}",
+        "K": "arabic,emoji,greek,japanese",
+        "G": "",
+        "V": "\"مرحبا\"\"🧪\"\"γειά\"\"こんにちは\"",
+        "payload": "101.29.27.0:{@0'0_12@1'1_6@2'2_10@3'3_17}arabic,emoji,greek,japanese\"مرحبا\"\"🧪\"\"γειά\"\"こんにちは\""
+      },
+      "expectedDecode": {
+        "value": {
+          "arabic": "مرحبا",
+          "emoji": "🧪",
+          "greek": "γειά",
+          "japanese": "こんにちは"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "empty-string-slot",
+      "kind": "roundtrip",
+      "description": "Empty strings still occupy a two-byte canonical JSON slot.",
+      "features": ["strings", "empty-string", "slot-length"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "empty": "",
+        "nonempty": "x"
+      },
+      "hbs": "hbs3.49b3f94b15dafd4c.33.14.14.0:{@0'0_2@1'1_3}empty,nonempty\"\"\"x\"",
+      "envelope": {
+        "integrityHash": "49b3f94b15dafd4c",
+        "bodyLen": 33,
+        "schemaLen": 14,
+        "keysLen": 14,
+        "guardsLen": 0,
+        "body": "{@0'0_2@1'1_3}empty,nonempty\"\"\"x\"",
+        "T": "{@0'0_2@1'1_3}",
+        "K": "empty,nonempty",
+        "G": "",
+        "V": "\"\"\"x\"",
+        "payload": "33.14.14.0:{@0'0_2@1'1_3}empty,nonempty\"\"\"x\""
+      },
+      "expectedDecode": {
+        "value": {
+          "empty": "",
+          "nonempty": "x"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "number-canonical-forms",
+      "kind": "roundtrip",
+      "description": "Finite JSON numbers use canonical JavaScript/JCS-compatible spelling.",
+      "features": ["numbers", "canonical-json"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "big": 1e21,
+        "fractional": -12.5,
+        "integer": 123,
+        "small": 0.000001,
+        "tiny": 1e-7,
+        "zero": 0
+      },
+      "hbs": "hbs3.32ee40324ccaa9b8.102.38.38.0:{@0\"0_5@1\"1_5@2\"2_3@3\"3_8@4\"4_4@5\"5_1}big,fractional,integer,small,tiny,zero1e+21-12.51230.0000011e-70",
+      "envelope": {
+        "integrityHash": "32ee40324ccaa9b8",
+        "bodyLen": 102,
+        "schemaLen": 38,
+        "keysLen": 38,
+        "guardsLen": 0,
+        "body": "{@0\"0_5@1\"1_5@2\"2_3@3\"3_8@4\"4_4@5\"5_1}big,fractional,integer,small,tiny,zero1e+21-12.51230.0000011e-70",
+        "T": "{@0\"0_5@1\"1_5@2\"2_3@3\"3_8@4\"4_4@5\"5_1}",
+        "K": "big,fractional,integer,small,tiny,zero",
+        "G": "",
+        "V": "1e+21-12.51230.0000011e-70",
+        "payload": "102.38.38.0:{@0\"0_5@1\"1_5@2\"2_3@3\"3_8@4\"4_4@5\"5_1}big,fractional,integer,small,tiny,zero1e+21-12.51230.0000011e-70"
+      },
+      "expectedDecode": {
+        "value": {
+          "big": 1e21,
+          "fractional": -12.5,
+          "integer": 123,
+          "small": 0.000001,
+          "tiny": 1e-7,
+          "zero": 0
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "negative-and-exponent-numbers",
+      "kind": "roundtrip",
+      "description": "Negative integers, negative fractions, and exponent notation survive as JSON numbers.",
+      "features": ["numbers", "negative", "exponent"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "neg": -1,
+        "negFraction": -0.125,
+        "exponent": 6.2e21
+      },
+      "hbs": "hbs3.2c1ac518d3c405c5.59.20.24.0:{@0\"0_7@1\"1_2@2\"2_6}exponent,neg,negFraction6.2e+21-1-0.125",
+      "envelope": {
+        "integrityHash": "2c1ac518d3c405c5",
+        "bodyLen": 59,
+        "schemaLen": 20,
+        "keysLen": 24,
+        "guardsLen": 0,
+        "body": "{@0\"0_7@1\"1_2@2\"2_6}exponent,neg,negFraction6.2e+21-1-0.125",
+        "T": "{@0\"0_7@1\"1_2@2\"2_6}",
+        "K": "exponent,neg,negFraction",
+        "G": "",
+        "V": "6.2e+21-1-0.125",
+        "payload": "59.20.24.0:{@0\"0_7@1\"1_2@2\"2_6}exponent,neg,negFraction6.2e+21-1-0.125"
+      },
+      "expectedDecode": {
+        "value": {
+          "exponent": 6.2e21,
+          "neg": -1,
+          "negFraction": -0.125
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "json-safe-integer-boundaries",
+      "kind": "roundtrip",
+      "description": "Large finite JSON integers near the safe-integer boundary keep their canonical spelling.",
+      "features": ["numbers", "integer-boundary"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "maxSafe": 9007199254740991,
+        "minSafe": -9007199254740991
+      },
+      "hbs": "hbs3.733cdf1230d6c7d0.64.16.15.0:{@0\"0_16@1\"1_17}maxSafe,minSafe9007199254740991-9007199254740991",
+      "envelope": {
+        "integrityHash": "733cdf1230d6c7d0",
+        "bodyLen": 64,
+        "schemaLen": 16,
+        "keysLen": 15,
+        "guardsLen": 0,
+        "body": "{@0\"0_16@1\"1_17}maxSafe,minSafe9007199254740991-9007199254740991",
+        "T": "{@0\"0_16@1\"1_17}",
+        "K": "maxSafe,minSafe",
+        "G": "",
+        "V": "9007199254740991-9007199254740991",
+        "payload": "64.16.15.0:{@0\"0_16@1\"1_17}maxSafe,minSafe9007199254740991-9007199254740991"
+      },
+      "expectedDecode": {
+        "value": {
+          "maxSafe": 9007199254740991,
+          "minSafe": -9007199254740991
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "json-finite-number-extremes",
+      "kind": "roundtrip",
+      "description": "Finite JSON numbers at JavaScript's positive min/max boundaries keep canonical spelling.",
+      "features": ["numbers", "finite-boundary", "canonical-json"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "max": 1.7976931348623157e308,
+        "min": 5e-324
+      },
+      "hbs": "hbs3.94e9b5a4d5ff6b5b.51.15.7.0:{@0\"0_23@1\"1_6}max,min1.7976931348623157e+3085e-324",
+      "envelope": {
+        "integrityHash": "94e9b5a4d5ff6b5b",
+        "bodyLen": 51,
+        "schemaLen": 15,
+        "keysLen": 7,
+        "guardsLen": 0,
+        "body": "{@0\"0_23@1\"1_6}max,min1.7976931348623157e+3085e-324",
+        "T": "{@0\"0_23@1\"1_6}",
+        "K": "max,min",
+        "G": "",
+        "V": "1.7976931348623157e+3085e-324",
+        "payload": "51.15.7.0:{@0\"0_23@1\"1_6}max,min1.7976931348623157e+3085e-324"
+      },
+      "expectedDecode": {
+        "value": {
+          "max": 1.7976931348623157e308,
+          "min": 5e-324
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "strict-key-characters",
+      "kind": "roundtrip",
+      "description": "Strict key grammar accepts selected punctuation and interior spaces.",
+      "features": ["keys", "strict-key-grammar", "key-order"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "0": null,
+        "claim id v2": 1,
+        "claim@id": 2,
+        "$schema": "x",
+        "a.b-c_$@ 0": true
+      },
+      "hbs": "hbs3.efa14ff1afa565ae.72.26.41.0:{@0'0_3@1z@2t@3\"0_1@4\"1_1}$schema,0,a.b-c_$@ 0,claim id v2,claim@id\"x\"12",
+      "envelope": {
+        "integrityHash": "efa14ff1afa565ae",
+        "bodyLen": 72,
+        "schemaLen": 26,
+        "keysLen": 41,
+        "guardsLen": 0,
+        "body": "{@0'0_3@1z@2t@3\"0_1@4\"1_1}$schema,0,a.b-c_$@ 0,claim id v2,claim@id\"x\"12",
+        "T": "{@0'0_3@1z@2t@3\"0_1@4\"1_1}",
+        "K": "$schema,0,a.b-c_$@ 0,claim id v2,claim@id",
+        "G": "",
+        "V": "\"x\"12",
+        "payload": "72.26.41.0:{@0'0_3@1z@2t@3\"0_1@4\"1_1}$schema,0,a.b-c_$@ 0,claim id v2,claim@id\"x\"12"
+      },
+      "expectedDecode": {
+        "value": {
+          "0": null,
+          "$schema": "x",
+          "a.b-c_$@ 0": true,
+          "claim id v2": 1,
+          "claim@id": 2
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "ascii-lexicographic-key-order",
+      "kind": "roundtrip",
+      "description": "ASCII lexicographic key order is visible in the key dictionary.",
+      "features": ["keys", "ascii-order", "key-order"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "0": 5,
+        "a": 1,
+        "A": 2,
+        "_": 3,
+        "$": 4,
+        "z": 6,
+        "Z": 7
+      },
+      "hbs": "hbs3.2075aa70698cac8b.64.44.13.0:{@0\"0_1@1\"1_1@2\"2_1@3\"3_1@4\"4_1@5\"5_1@6\"6_1}$,0,A,Z,_,a,z4527316",
+      "envelope": {
+        "integrityHash": "2075aa70698cac8b",
+        "bodyLen": 64,
+        "schemaLen": 44,
+        "keysLen": 13,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1\"1_1@2\"2_1@3\"3_1@4\"4_1@5\"5_1@6\"6_1}$,0,A,Z,_,a,z4527316",
+        "T": "{@0\"0_1@1\"1_1@2\"2_1@3\"3_1@4\"4_1@5\"5_1@6\"6_1}",
+        "K": "$,0,A,Z,_,a,z",
+        "G": "",
+        "V": "4527316",
+        "payload": "64.44.13.0:{@0\"0_1@1\"1_1@2\"2_1@3\"3_1@4\"4_1@5\"5_1@6\"6_1}$,0,A,Z,_,a,z4527316"
+      },
+      "expectedDecode": {
+        "value": {
+          "0": 5,
+          "$": 4,
+          "A": 2,
+          "Z": 7,
+          "_": 3,
+          "a": 1,
+          "z": 6
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "nested-empty-containers",
+      "kind": "roundtrip",
+      "description": "Nested empty objects and arrays are structural schema material with no value stream entries.",
+      "features": ["object", "array", "empty", "nested", "no-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "a": [],
+        "b": {},
+        "c": [
+          {
+            "d": []
+          }
+        ]
+      },
+      "hbs": "hbs3.9f2ffe0080fadcbb.32.25.7.0:{@0[]@1{}@2[~1.1:@3[:[]]}a,b,c,d",
+      "envelope": {
+        "integrityHash": "9f2ffe0080fadcbb",
+        "bodyLen": 32,
+        "schemaLen": 25,
+        "keysLen": 7,
+        "guardsLen": 0,
+        "body": "{@0[]@1{}@2[~1.1:@3[:[]]}a,b,c,d",
+        "T": "{@0[]@1{}@2[~1.1:@3[:[]]}",
+        "K": "a,b,c,d",
+        "G": "",
+        "V": "",
+        "payload": "32.25.7.0:{@0[]@1{}@2[~1.1:@3[:[]]}a,b,c,d"
+      },
+      "expectedDecode": {
+        "value": {
+          "a": [],
+          "b": {},
+          "c": [
+            {
+              "d": []
+            }
+          ]
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "extended-key-and-slot-refs",
+      "kind": "roundtrip",
+      "description": "More than 62 keys and scalar slots force extended reference encoding.",
+      "features": ["refs", "extended-refs", "many-keys", "many-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "k65": "v65",
+        "k64": "v64",
+        "k63": "v63",
+        "k62": "v62",
+        "k61": "v61",
+        "k60": "v60",
+        "k59": "v59",
+        "k58": "v58",
+        "k57": "v57",
+        "k56": "v56",
+        "k55": "v55",
+        "k54": "v54",
+        "k53": "v53",
+        "k52": "v52",
+        "k51": "v51",
+        "k50": "v50",
+        "k49": "v49",
+        "k48": "v48",
+        "k47": "v47",
+        "k46": "v46",
+        "k45": "v45",
+        "k44": "v44",
+        "k43": "v43",
+        "k42": "v42",
+        "k41": "v41",
+        "k40": "v40",
+        "k39": "v39",
+        "k38": "v38",
+        "k37": "v37",
+        "k36": "v36",
+        "k35": "v35",
+        "k34": "v34",
+        "k33": "v33",
+        "k32": "v32",
+        "k31": "v31",
+        "k30": "v30",
+        "k29": "v29",
+        "k28": "v28",
+        "k27": "v27",
+        "k26": "v26",
+        "k25": "v25",
+        "k24": "v24",
+        "k23": "v23",
+        "k22": "v22",
+        "k21": "v21",
+        "k20": "v20",
+        "k19": "v19",
+        "k18": "v18",
+        "k17": "v17",
+        "k16": "v16",
+        "k15": "v15",
+        "k14": "v14",
+        "k13": "v13",
+        "k12": "v12",
+        "k11": "v11",
+        "k10": "v10",
+        "k09": "v09",
+        "k08": "v08",
+        "k07": "v07",
+        "k06": "v06",
+        "k05": "v05",
+        "k04": "v04",
+        "k03": "v03",
+        "k02": "v02",
+        "k01": "v01",
+        "k00": "v00"
+      },
+      "hbs": "hbs3.8b73738b9bdb67d0.1015.422.263.0:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"",
+      "envelope": {
+        "integrityHash": "8b73738b9bdb67d0",
+        "bodyLen": 1015,
+        "schemaLen": 422,
+        "keysLen": 263,
+        "guardsLen": 0,
+        "body": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"",
+        "T": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5}",
+        "K": "k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65",
+        "G": "",
+        "V": "\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"",
+        "payload": "1015.422.263.0:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\""
+      },
+      "expectedDecode": {
+        "value": {
+          "k00": "v00",
+          "k01": "v01",
+          "k02": "v02",
+          "k03": "v03",
+          "k04": "v04",
+          "k05": "v05",
+          "k06": "v06",
+          "k07": "v07",
+          "k08": "v08",
+          "k09": "v09",
+          "k10": "v10",
+          "k11": "v11",
+          "k12": "v12",
+          "k13": "v13",
+          "k14": "v14",
+          "k15": "v15",
+          "k16": "v16",
+          "k17": "v17",
+          "k18": "v18",
+          "k19": "v19",
+          "k20": "v20",
+          "k21": "v21",
+          "k22": "v22",
+          "k23": "v23",
+          "k24": "v24",
+          "k25": "v25",
+          "k26": "v26",
+          "k27": "v27",
+          "k28": "v28",
+          "k29": "v29",
+          "k30": "v30",
+          "k31": "v31",
+          "k32": "v32",
+          "k33": "v33",
+          "k34": "v34",
+          "k35": "v35",
+          "k36": "v36",
+          "k37": "v37",
+          "k38": "v38",
+          "k39": "v39",
+          "k40": "v40",
+          "k41": "v41",
+          "k42": "v42",
+          "k43": "v43",
+          "k44": "v44",
+          "k45": "v45",
+          "k46": "v46",
+          "k47": "v47",
+          "k48": "v48",
+          "k49": "v49",
+          "k50": "v50",
+          "k51": "v51",
+          "k52": "v52",
+          "k53": "v53",
+          "k54": "v54",
+          "k55": "v55",
+          "k56": "v56",
+          "k57": "v57",
+          "k58": "v58",
+          "k59": "v59",
+          "k60": "v60",
+          "k61": "v61",
+          "k62": "v62",
+          "k63": "v63",
+          "k64": "v64",
+          "k65": "v65"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "single-char-ref-boundary",
+      "kind": "roundtrip",
+      "description": "Exactly 62 keys and slots still use single-character z refs, not extended refs.",
+      "features": [
+        "refs",
+        "single-char-ref-boundary",
+        "many-keys",
+        "many-slots"
+      ],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "k61": "v61",
+        "k60": "v60",
+        "k59": "v59",
+        "k58": "v58",
+        "k57": "v57",
+        "k56": "v56",
+        "k55": "v55",
+        "k54": "v54",
+        "k53": "v53",
+        "k52": "v52",
+        "k51": "v51",
+        "k50": "v50",
+        "k49": "v49",
+        "k48": "v48",
+        "k47": "v47",
+        "k46": "v46",
+        "k45": "v45",
+        "k44": "v44",
+        "k43": "v43",
+        "k42": "v42",
+        "k41": "v41",
+        "k40": "v40",
+        "k39": "v39",
+        "k38": "v38",
+        "k37": "v37",
+        "k36": "v36",
+        "k35": "v35",
+        "k34": "v34",
+        "k33": "v33",
+        "k32": "v32",
+        "k31": "v31",
+        "k30": "v30",
+        "k29": "v29",
+        "k28": "v28",
+        "k27": "v27",
+        "k26": "v26",
+        "k25": "v25",
+        "k24": "v24",
+        "k23": "v23",
+        "k22": "v22",
+        "k21": "v21",
+        "k20": "v20",
+        "k19": "v19",
+        "k18": "v18",
+        "k17": "v17",
+        "k16": "v16",
+        "k15": "v15",
+        "k14": "v14",
+        "k13": "v13",
+        "k12": "v12",
+        "k11": "v11",
+        "k10": "v10",
+        "k09": "v09",
+        "k08": "v08",
+        "k07": "v07",
+        "k06": "v06",
+        "k05": "v05",
+        "k04": "v04",
+        "k03": "v03",
+        "k02": "v02",
+        "k01": "v01",
+        "k00": "v00"
+      },
+      "hbs": "hbs3.34260f52f6b9d247.931.374.247.0:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"",
+      "envelope": {
+        "integrityHash": "34260f52f6b9d247",
+        "bodyLen": 931,
+        "schemaLen": 374,
+        "keysLen": 247,
+        "guardsLen": 0,
+        "body": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"",
+        "T": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5}",
+        "K": "k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61",
+        "G": "",
+        "V": "\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"",
+        "payload": "931.374.247.0:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\""
+      },
+      "expectedDecode": {
+        "value": {
+          "k00": "v00",
+          "k01": "v01",
+          "k02": "v02",
+          "k03": "v03",
+          "k04": "v04",
+          "k05": "v05",
+          "k06": "v06",
+          "k07": "v07",
+          "k08": "v08",
+          "k09": "v09",
+          "k10": "v10",
+          "k11": "v11",
+          "k12": "v12",
+          "k13": "v13",
+          "k14": "v14",
+          "k15": "v15",
+          "k16": "v16",
+          "k17": "v17",
+          "k18": "v18",
+          "k19": "v19",
+          "k20": "v20",
+          "k21": "v21",
+          "k22": "v22",
+          "k23": "v23",
+          "k24": "v24",
+          "k25": "v25",
+          "k26": "v26",
+          "k27": "v27",
+          "k28": "v28",
+          "k29": "v29",
+          "k30": "v30",
+          "k31": "v31",
+          "k32": "v32",
+          "k33": "v33",
+          "k34": "v34",
+          "k35": "v35",
+          "k36": "v36",
+          "k37": "v37",
+          "k38": "v38",
+          "k39": "v39",
+          "k40": "v40",
+          "k41": "v41",
+          "k42": "v42",
+          "k43": "v43",
+          "k44": "v44",
+          "k45": "v45",
+          "k46": "v46",
+          "k47": "v47",
+          "k48": "v48",
+          "k49": "v49",
+          "k50": "v50",
+          "k51": "v51",
+          "k52": "v52",
+          "k53": "v53",
+          "k54": "v54",
+          "k55": "v55",
+          "k56": "v56",
+          "k57": "v57",
+          "k58": "v58",
+          "k59": "v59",
+          "k60": "v60",
+          "k61": "v61"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "homogeneous-object-array-table",
+      "kind": "roundtrip",
+      "description": "Homogeneous object array table mode with variable number/string slots and literals.",
+      "features": ["array", "table", "variable-slot", "literal"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "a": 1,
+          "b": "x",
+          "ok": true
+        },
+        {
+          "a": 200,
+          "b": "yy",
+          "ok": true
+        }
+      ],
+      "hbs": "hbs3.f7bf9a0a3b8f8a0b.50.33.6.0:[~3.2:@0\"@1'@2t:0_1;0_3;1_3;1_4;]a,b,ok1\"x\"200\"yy\"",
+      "envelope": {
+        "integrityHash": "f7bf9a0a3b8f8a0b",
+        "bodyLen": 50,
+        "schemaLen": 33,
+        "keysLen": 6,
+        "guardsLen": 0,
+        "body": "[~3.2:@0\"@1'@2t:0_1;0_3;1_3;1_4;]a,b,ok1\"x\"200\"yy\"",
+        "T": "[~3.2:@0\"@1'@2t:0_1;0_3;1_3;1_4;]",
+        "K": "a,b,ok",
+        "G": "",
+        "V": "1\"x\"200\"yy\"",
+        "payload": "50.33.6.0:[~3.2:@0\"@1'@2t:0_1;0_3;1_3;1_4;]a,b,ok1\"x\"200\"yy\""
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "a": 1,
+            "b": "x",
+            "ok": true
+          },
+          {
+            "a": 200,
+            "b": "yy",
+            "ok": true
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-empty-object-rows",
+      "kind": "roundtrip",
+      "description": "Homogeneous arrays of empty objects use zero-column table mode.",
+      "features": ["array", "table", "empty", "zero-column"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [{}, {}, {}],
+      "hbs": "hbs3.a455319b339b4e54.8.8.0.0:[~0.3::]",
+      "envelope": {
+        "integrityHash": "a455319b339b4e54",
+        "bodyLen": 8,
+        "schemaLen": 8,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "[~0.3::]",
+        "T": "[~0.3::]",
+        "K": "",
+        "G": "",
+        "V": "",
+        "payload": "8.8.0.0:[~0.3::]"
+      },
+      "expectedDecode": {
+        "value": [{}, {}, {}],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-single-row",
+      "kind": "roundtrip",
+      "description": "A single plain-object row is still eligible for table mode.",
+      "features": ["array", "table", "single-row"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "a": 1,
+          "b": "x"
+        }
+      ],
+      "hbs": "hbs3.befbe2998a6e3b0e.25.18.3.0:[~2.1:@0\"1@1'3:00]a,b1\"x\"",
+      "envelope": {
+        "integrityHash": "befbe2998a6e3b0e",
+        "bodyLen": 25,
+        "schemaLen": 18,
+        "keysLen": 3,
+        "guardsLen": 0,
+        "body": "[~2.1:@0\"1@1'3:00]a,b1\"x\"",
+        "T": "[~2.1:@0\"1@1'3:00]",
+        "K": "a,b",
+        "G": "",
+        "V": "1\"x\"",
+        "payload": "25.18.3.0:[~2.1:@0\"1@1'3:00]a,b1\"x\""
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "a": 1,
+            "b": "x"
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-fixed-slots",
+      "kind": "roundtrip",
+      "description": "Homogeneous table columns use fixed-width descriptors when every encoded slot has the same byte length.",
+      "features": ["array", "table", "fixed-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "a": 1,
+          "b": "x"
+        },
+        {
+          "a": 2,
+          "b": "y"
+        },
+        {
+          "a": 3,
+          "b": "z"
+        }
+      ],
+      "hbs": "hbs3.a590bb97f8a5fc7e.37.22.3.0:[~2.3:@0\"1@1'3:001122]a,b1\"x\"2\"y\"3\"z\"",
+      "envelope": {
+        "integrityHash": "a590bb97f8a5fc7e",
+        "bodyLen": 37,
+        "schemaLen": 22,
+        "keysLen": 3,
+        "guardsLen": 0,
+        "body": "[~2.3:@0\"1@1'3:001122]a,b1\"x\"2\"y\"3\"z\"",
+        "T": "[~2.3:@0\"1@1'3:001122]",
+        "K": "a,b",
+        "G": "",
+        "V": "1\"x\"2\"y\"3\"z\"",
+        "payload": "37.22.3.0:[~2.3:@0\"1@1'3:001122]a,b1\"x\"2\"y\"3\"z\""
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "a": 1,
+            "b": "x"
+          },
+          {
+            "a": 2,
+            "b": "y"
+          },
+          {
+            "a": 3,
+            "b": "z"
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-mixed-fixed-and-variable-columns",
+      "kind": "roundtrip",
+      "description": "One table can combine fixed-width and variable-width scalar columns.",
+      "features": ["array", "table", "fixed-slot", "variable-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "fixed": "x",
+          "variable": "p"
+        },
+        {
+          "fixed": "y",
+          "variable": "qq"
+        },
+        {
+          "fixed": "z",
+          "variable": "rrr"
+        }
+      ],
+      "hbs": "hbs3.8c364f54eb2e4238.65.30.14.0:[~2.3:@0'3@1':01_3;23_4;45_5;]fixed,variable\"x\"\"p\"\"y\"\"qq\"\"z\"\"rrr\"",
+      "envelope": {
+        "integrityHash": "8c364f54eb2e4238",
+        "bodyLen": 65,
+        "schemaLen": 30,
+        "keysLen": 14,
+        "guardsLen": 0,
+        "body": "[~2.3:@0'3@1':01_3;23_4;45_5;]fixed,variable\"x\"\"p\"\"y\"\"qq\"\"z\"\"rrr\"",
+        "T": "[~2.3:@0'3@1':01_3;23_4;45_5;]",
+        "K": "fixed,variable",
+        "G": "",
+        "V": "\"x\"\"p\"\"y\"\"qq\"\"z\"\"rrr\"",
+        "payload": "65.30.14.0:[~2.3:@0'3@1':01_3;23_4;45_5;]fixed,variable\"x\"\"p\"\"y\"\"qq\"\"z\"\"rrr\""
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "fixed": "x",
+            "variable": "p"
+          },
+          {
+            "fixed": "y",
+            "variable": "qq"
+          },
+          {
+            "fixed": "z",
+            "variable": "rrr"
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-nested-node-columns",
+      "kind": "roundtrip",
+      "description": "Homogeneous table columns can contain nested object and array nodes.",
+      "features": ["array", "table", "nested", "node-columns"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "id": 1,
+          "tags": ["a"],
+          "meta": {
+            "ok": true
+          }
+        },
+        {
+          "id": 2,
+          "tags": ["b", "c"],
+          "meta": {
+            "ok": false
+          }
+        }
+      ],
+      "hbs": "hbs3.2feb899612580508.72.46.15.0:[~3.2:@0\"1@1{@2[:0{@3t}['0_3]1{@3f}['1_3'2_3]]id,meta,tags,ok1\"a\"2\"b\"\"c\"",
+      "envelope": {
+        "integrityHash": "2feb899612580508",
+        "bodyLen": 72,
+        "schemaLen": 46,
+        "keysLen": 15,
+        "guardsLen": 0,
+        "body": "[~3.2:@0\"1@1{@2[:0{@3t}['0_3]1{@3f}['1_3'2_3]]id,meta,tags,ok1\"a\"2\"b\"\"c\"",
+        "T": "[~3.2:@0\"1@1{@2[:0{@3t}['0_3]1{@3f}['1_3'2_3]]",
+        "K": "id,meta,tags,ok",
+        "G": "",
+        "V": "1\"a\"2\"b\"\"c\"",
+        "payload": "72.46.15.0:[~3.2:@0\"1@1{@2[:0{@3t}['0_3]1{@3f}['1_3'2_3]]id,meta,tags,ok1\"a\"2\"b\"\"c\""
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "id": 1,
+            "meta": {
+              "ok": true
+            },
+            "tags": ["a"]
+          },
+          {
+            "id": 2,
+            "meta": {
+              "ok": false
+            },
+            "tags": ["b", "c"]
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-mixed-node-column",
+      "kind": "roundtrip",
+      "description": "Homogeneous table shape with a mixed-type column uses the generic node marker.",
+      "features": ["array", "table", "mixed-column"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "x": "a"
+        },
+        {
+          "x": 1
+        },
+        {
+          "x": null
+        }
+      ],
+      "hbs": "hbs3.3f21faa6475f06cd.25.20.1.0:[~1.3:@0*:'0_3\"0_1z]x\"a\"1",
+      "envelope": {
+        "integrityHash": "3f21faa6475f06cd",
+        "bodyLen": 25,
+        "schemaLen": 20,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "[~1.3:@0*:'0_3\"0_1z]x\"a\"1",
+        "T": "[~1.3:@0*:'0_3\"0_1z]",
+        "K": "x",
+        "G": "",
+        "V": "\"a\"1",
+        "payload": "25.20.1.0:[~1.3:@0*:'0_3\"0_1z]x\"a\"1"
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "x": "a"
+          },
+          {
+            "x": 1
+          },
+          {
+            "x": null
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "table-literal-false-null-columns",
+      "kind": "roundtrip",
+      "description": "Table literal columns cover false and null descriptors, not only true.",
+      "features": ["array", "table", "literal", "false", "null"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "f": false,
+          "n": null,
+          "x": 1
+        },
+        {
+          "f": false,
+          "n": null,
+          "x": 2
+        }
+      ],
+      "hbs": "hbs3.c39d0025b8fe8f77.27.20.5.0:[~3.2:@0f@1z@2\"1:01]f,n,x12",
+      "envelope": {
+        "integrityHash": "c39d0025b8fe8f77",
+        "bodyLen": 27,
+        "schemaLen": 20,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "[~3.2:@0f@1z@2\"1:01]f,n,x12",
+        "T": "[~3.2:@0f@1z@2\"1:01]",
+        "K": "f,n,x",
+        "G": "",
+        "V": "12",
+        "payload": "27.20.5.0:[~3.2:@0f@1z@2\"1:01]f,n,x12"
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "f": false,
+            "n": null,
+            "x": 1
+          },
+          {
+            "f": false,
+            "n": null,
+            "x": 2
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "heterogeneous-object-array-fallback",
+      "kind": "roundtrip",
+      "description": "Object arrays with different key sets encode as normal array items, not table mode.",
+      "features": ["array", "object", "heterogeneous"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "a": 1
+        },
+        {
+          "a": 2,
+          "b": 3
+        }
+      ],
+      "hbs": "hbs3.c1b4af55f9eb4a95.30.24.3.0:[{@0\"0_1}{@0\"1_1@1\"2_1}]a,b123",
+      "envelope": {
+        "integrityHash": "c1b4af55f9eb4a95",
+        "bodyLen": 30,
+        "schemaLen": 24,
+        "keysLen": 3,
+        "guardsLen": 0,
+        "body": "[{@0\"0_1}{@0\"1_1@1\"2_1}]a,b123",
+        "T": "[{@0\"0_1}{@0\"1_1@1\"2_1}]",
+        "K": "a,b",
+        "G": "",
+        "V": "123",
+        "payload": "30.24.3.0:[{@0\"0_1}{@0\"1_1@1\"2_1}]a,b123"
+      },
+      "expectedDecode": {
+        "value": [
+          {
+            "a": 1
+          },
+          {
+            "a": 2,
+            "b": 3
+          }
+        ],
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "full-length-integrity-hash",
+      "kind": "roundtrip",
+      "description": "SHA-256 integrity can use the full 64 hex character digest.",
+      "features": ["integrity", "sha256", "tag-length"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 64
+        },
+        "guards": false
+      },
+      "input": {
+        "hash": "full",
+        "n": 64
+      },
+      "hbs": "hbs3.2a20830f2d346970b246e8369c8609c4e34537a98035feb77c15c0fab1158b4c.28.14.6.0:{@0'0_6@1\"0_2}hash,n\"full\"64",
+      "envelope": {
+        "integrityHash": "2a20830f2d346970b246e8369c8609c4e34537a98035feb77c15c0fab1158b4c",
+        "bodyLen": 28,
+        "schemaLen": 14,
+        "keysLen": 6,
+        "guardsLen": 0,
+        "body": "{@0'0_6@1\"0_2}hash,n\"full\"64",
+        "T": "{@0'0_6@1\"0_2}",
+        "K": "hash,n",
+        "G": "",
+        "V": "\"full\"64",
+        "payload": "28.14.6.0:{@0'0_6@1\"0_2}hash,n\"full\"64"
+      },
+      "expectedDecode": {
+        "value": {
+          "hash": "full",
+          "n": 64
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "guarded-empty-object",
+      "kind": "roundtrip",
+      "description": "Guarded mode with no scalar slots has an empty guard section.",
+      "features": ["guards", "empty", "no-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "input": {},
+      "hbs": "hbs3.dc94fde957cbf825.2.2.0.0:{}",
+      "envelope": {
+        "integrityHash": "dc94fde957cbf825",
+        "bodyLen": 2,
+        "schemaLen": 2,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "{}",
+        "T": "{}",
+        "K": "",
+        "G": "",
+        "V": "",
+        "payload": "2.2.0.0:{}"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "guarded-sha256",
+      "kind": "roundtrip",
+      "description": "Public per-slot guards using SHA-256 with six hexadecimal characters.",
+      "features": ["guards", "sha256-guards", "slot-guard-preimage"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "input": {
+        "name": "alice",
+        "count": 3
+      },
+      "hbs": "hbs3.84237660ec1fd709.45.14.10.13:{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"alice\"",
+      "envelope": {
+        "integrityHash": "84237660ec1fd709",
+        "bodyLen": 45,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 13,
+        "body": "{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "e98a2f,63304c",
+        "V": "3\"alice\"",
+        "payload": "45.14.10.13:{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true,
+          "'0": true
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "guarded-reused-slots",
+      "kind": "roundtrip",
+      "description": "Guard count follows unique scalar slot count, not schema reference count.",
+      "features": ["guards", "dedupe", "slot-reuse"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "input": {
+        "a": "same",
+        "b": "same",
+        "c": 7,
+        "d": 7
+      },
+      "hbs": "hbs3.6cbed1e90dcda6d8.53.26.7.13:{@0'0_6@1'0_6@2\"0_1@3\"0_1}a,b,c,d6c2a50,9d3631\"same\"7",
+      "envelope": {
+        "integrityHash": "6cbed1e90dcda6d8",
+        "bodyLen": 53,
+        "schemaLen": 26,
+        "keysLen": 7,
+        "guardsLen": 13,
+        "body": "{@0'0_6@1'0_6@2\"0_1@3\"0_1}a,b,c,d6c2a50,9d3631\"same\"7",
+        "T": "{@0'0_6@1'0_6@2\"0_1@3\"0_1}",
+        "K": "a,b,c,d",
+        "G": "6c2a50,9d3631",
+        "V": "\"same\"7",
+        "payload": "53.26.7.13:{@0'0_6@1'0_6@2\"0_1@3\"0_1}a,b,c,d6c2a50,9d3631\"same\"7"
+      },
+      "expectedDecode": {
+        "value": {
+          "a": "same",
+          "b": "same",
+          "c": 7,
+          "d": 7
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "'0": true,
+          "\"0": true
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "hmac-integrity-only",
+      "kind": "roundtrip",
+      "description": "HMAC-SHA256 integrity tag without per-slot guards.",
+      "features": ["hmac-integrity", "unguarded"],
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-integrity-secret",
+          "tagLength": 20
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice",
+        "count": 3
+      },
+      "hbs": "hbs3.6a012e12e68b67f5f5f2.32.14.10.0:{@0\"0_1@1'0_7}count,name3\"alice\"",
+      "envelope": {
+        "integrityHash": "6a012e12e68b67f5f5f2",
+        "bodyLen": 32,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1'0_7}count,name3\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "",
+        "V": "3\"alice\"",
+        "payload": "32.14.10.0:{@0\"0_1@1'0_7}count,name3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "hmac-integrity-and-guards",
+      "kind": "roundtrip",
+      "description": "HMAC-SHA256 integrity tag and HMAC per-slot guards with explicit secrets.",
+      "features": ["hmac-integrity", "hmac-guards", "tag-length"],
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-integrity-secret",
+          "tagLength": 20
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-guard-secret",
+          "tagLength": 8
+        }
+      },
+      "input": {
+        "name": "alice",
+        "count": 3
+      },
+      "hbs": "hbs3.6dec0cbd6537c9de5035.49.14.10.17:{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\"",
+      "envelope": {
+        "integrityHash": "6dec0cbd6537c9de5035",
+        "bodyLen": 49,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 17,
+        "body": "{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "76b16506,05ac3d65",
+        "V": "3\"alice\"",
+        "payload": "49.14.10.17:{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true,
+          "'0": true
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "encode-only-many-string-slot-refs",
+      "kind": "encode",
+      "description": "More than sixty-two distinct string slots force extended string refs without key refs.",
+      "features": ["encode-only", "extended-refs", "strings", "array"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        "s00",
+        "s01",
+        "s02",
+        "s03",
+        "s04",
+        "s05",
+        "s06",
+        "s07",
+        "s08",
+        "s09",
+        "s10",
+        "s11",
+        "s12",
+        "s13",
+        "s14",
+        "s15",
+        "s16",
+        "s17",
+        "s18",
+        "s19",
+        "s20",
+        "s21",
+        "s22",
+        "s23",
+        "s24",
+        "s25",
+        "s26",
+        "s27",
+        "s28",
+        "s29",
+        "s30",
+        "s31",
+        "s32",
+        "s33",
+        "s34",
+        "s35",
+        "s36",
+        "s37",
+        "s38",
+        "s39",
+        "s40",
+        "s41",
+        "s42",
+        "s43",
+        "s44",
+        "s45",
+        "s46",
+        "s47",
+        "s48",
+        "s49",
+        "s50",
+        "s51",
+        "s52",
+        "s53",
+        "s54",
+        "s55",
+        "s56",
+        "s57",
+        "s58",
+        "s59",
+        "s60",
+        "s61",
+        "s62",
+        "s63",
+        "s64",
+        "s65",
+        "s66",
+        "s67",
+        "s68",
+        "s69"
+      ],
+      "hbs": "hbs3.1e469fe7e717610f.656.306.0.0:['0_5'1_5'2_5'3_5'4_5'5_5'6_5'7_5'8_5'9_5'A_5'B_5'C_5'D_5'E_5'F_5'G_5'H_5'I_5'J_5'K_5'L_5'M_5'N_5'O_5'P_5'Q_5'R_5'S_5'T_5'U_5'V_5'W_5'X_5'Y_5'Z_5'a_5'b_5'c_5'd_5'e_5'f_5'g_5'h_5'i_5'j_5'k_5'l_5'm_5'n_5'o_5'p_5'q_5'r_5's_5't_5'u_5'v_5'w_5'x_5'y_5'z_5'{10}_5'{11}_5'{12}_5'{13}_5'{14}_5'{15}_5'{16}_5'{17}_5]\"s00\"\"s01\"\"s02\"\"s03\"\"s04\"\"s05\"\"s06\"\"s07\"\"s08\"\"s09\"\"s10\"\"s11\"\"s12\"\"s13\"\"s14\"\"s15\"\"s16\"\"s17\"\"s18\"\"s19\"\"s20\"\"s21\"\"s22\"\"s23\"\"s24\"\"s25\"\"s26\"\"s27\"\"s28\"\"s29\"\"s30\"\"s31\"\"s32\"\"s33\"\"s34\"\"s35\"\"s36\"\"s37\"\"s38\"\"s39\"\"s40\"\"s41\"\"s42\"\"s43\"\"s44\"\"s45\"\"s46\"\"s47\"\"s48\"\"s49\"\"s50\"\"s51\"\"s52\"\"s53\"\"s54\"\"s55\"\"s56\"\"s57\"\"s58\"\"s59\"\"s60\"\"s61\"\"s62\"\"s63\"\"s64\"\"s65\"\"s66\"\"s67\"\"s68\"\"s69\"",
+      "envelope": {
+        "integrityHash": "1e469fe7e717610f",
+        "bodyLen": 656,
+        "schemaLen": 306,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "['0_5'1_5'2_5'3_5'4_5'5_5'6_5'7_5'8_5'9_5'A_5'B_5'C_5'D_5'E_5'F_5'G_5'H_5'I_5'J_5'K_5'L_5'M_5'N_5'O_5'P_5'Q_5'R_5'S_5'T_5'U_5'V_5'W_5'X_5'Y_5'Z_5'a_5'b_5'c_5'd_5'e_5'f_5'g_5'h_5'i_5'j_5'k_5'l_5'm_5'n_5'o_5'p_5'q_5'r_5's_5't_5'u_5'v_5'w_5'x_5'y_5'z_5'{10}_5'{11}_5'{12}_5'{13}_5'{14}_5'{15}_5'{16}_5'{17}_5]\"s00\"\"s01\"\"s02\"\"s03\"\"s04\"\"s05\"\"s06\"\"s07\"\"s08\"\"s09\"\"s10\"\"s11\"\"s12\"\"s13\"\"s14\"\"s15\"\"s16\"\"s17\"\"s18\"\"s19\"\"s20\"\"s21\"\"s22\"\"s23\"\"s24\"\"s25\"\"s26\"\"s27\"\"s28\"\"s29\"\"s30\"\"s31\"\"s32\"\"s33\"\"s34\"\"s35\"\"s36\"\"s37\"\"s38\"\"s39\"\"s40\"\"s41\"\"s42\"\"s43\"\"s44\"\"s45\"\"s46\"\"s47\"\"s48\"\"s49\"\"s50\"\"s51\"\"s52\"\"s53\"\"s54\"\"s55\"\"s56\"\"s57\"\"s58\"\"s59\"\"s60\"\"s61\"\"s62\"\"s63\"\"s64\"\"s65\"\"s66\"\"s67\"\"s68\"\"s69\"",
+        "T": "['0_5'1_5'2_5'3_5'4_5'5_5'6_5'7_5'8_5'9_5'A_5'B_5'C_5'D_5'E_5'F_5'G_5'H_5'I_5'J_5'K_5'L_5'M_5'N_5'O_5'P_5'Q_5'R_5'S_5'T_5'U_5'V_5'W_5'X_5'Y_5'Z_5'a_5'b_5'c_5'd_5'e_5'f_5'g_5'h_5'i_5'j_5'k_5'l_5'm_5'n_5'o_5'p_5'q_5'r_5's_5't_5'u_5'v_5'w_5'x_5'y_5'z_5'{10}_5'{11}_5'{12}_5'{13}_5'{14}_5'{15}_5'{16}_5'{17}_5]",
+        "K": "",
+        "G": "",
+        "V": "\"s00\"\"s01\"\"s02\"\"s03\"\"s04\"\"s05\"\"s06\"\"s07\"\"s08\"\"s09\"\"s10\"\"s11\"\"s12\"\"s13\"\"s14\"\"s15\"\"s16\"\"s17\"\"s18\"\"s19\"\"s20\"\"s21\"\"s22\"\"s23\"\"s24\"\"s25\"\"s26\"\"s27\"\"s28\"\"s29\"\"s30\"\"s31\"\"s32\"\"s33\"\"s34\"\"s35\"\"s36\"\"s37\"\"s38\"\"s39\"\"s40\"\"s41\"\"s42\"\"s43\"\"s44\"\"s45\"\"s46\"\"s47\"\"s48\"\"s49\"\"s50\"\"s51\"\"s52\"\"s53\"\"s54\"\"s55\"\"s56\"\"s57\"\"s58\"\"s59\"\"s60\"\"s61\"\"s62\"\"s63\"\"s64\"\"s65\"\"s66\"\"s67\"\"s68\"\"s69\"",
+        "payload": "656.306.0.0:['0_5'1_5'2_5'3_5'4_5'5_5'6_5'7_5'8_5'9_5'A_5'B_5'C_5'D_5'E_5'F_5'G_5'H_5'I_5'J_5'K_5'L_5'M_5'N_5'O_5'P_5'Q_5'R_5'S_5'T_5'U_5'V_5'W_5'X_5'Y_5'Z_5'a_5'b_5'c_5'd_5'e_5'f_5'g_5'h_5'i_5'j_5'k_5'l_5'm_5'n_5'o_5'p_5'q_5'r_5's_5't_5'u_5'v_5'w_5'x_5'y_5'z_5'{10}_5'{11}_5'{12}_5'{13}_5'{14}_5'{15}_5'{16}_5'{17}_5]\"s00\"\"s01\"\"s02\"\"s03\"\"s04\"\"s05\"\"s06\"\"s07\"\"s08\"\"s09\"\"s10\"\"s11\"\"s12\"\"s13\"\"s14\"\"s15\"\"s16\"\"s17\"\"s18\"\"s19\"\"s20\"\"s21\"\"s22\"\"s23\"\"s24\"\"s25\"\"s26\"\"s27\"\"s28\"\"s29\"\"s30\"\"s31\"\"s32\"\"s33\"\"s34\"\"s35\"\"s36\"\"s37\"\"s38\"\"s39\"\"s40\"\"s41\"\"s42\"\"s43\"\"s44\"\"s45\"\"s46\"\"s47\"\"s48\"\"s49\"\"s50\"\"s51\"\"s52\"\"s53\"\"s54\"\"s55\"\"s56\"\"s57\"\"s58\"\"s59\"\"s60\"\"s61\"\"s62\"\"s63\"\"s64\"\"s65\"\"s66\"\"s67\"\"s68\"\"s69\""
+      }
+    },
+    {
+      "id": "encode-only-many-number-slot-refs",
+      "kind": "encode",
+      "description": "More than sixty-two distinct number slots force extended number refs without key refs.",
+      "features": ["encode-only", "extended-refs", "numbers", "array"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        0.25, 1.25, 2.25, 3.25, 4.25, 5.25, 6.25, 7.25, 8.25, 9.25, 10.25,
+        11.25, 12.25, 13.25, 14.25, 15.25, 16.25, 17.25, 18.25, 19.25, 20.25,
+        21.25, 22.25, 23.25, 24.25, 25.25, 26.25, 27.25, 28.25, 29.25, 30.25,
+        31.25, 32.25, 33.25, 34.25, 35.25, 36.25, 37.25, 38.25, 39.25, 40.25,
+        41.25, 42.25, 43.25, 44.25, 45.25, 46.25, 47.25, 48.25, 49.25, 50.25,
+        51.25, 52.25, 53.25, 54.25, 55.25, 56.25, 57.25, 58.25, 59.25, 60.25,
+        61.25, 62.25, 63.25, 64.25, 65.25, 66.25, 67.25, 68.25, 69.25
+      ],
+      "hbs": "hbs3.f671ddeada146a2f.646.306.0.0:[\"0_4\"1_4\"2_4\"3_4\"4_4\"5_4\"6_4\"7_4\"8_4\"9_4\"A_5\"B_5\"C_5\"D_5\"E_5\"F_5\"G_5\"H_5\"I_5\"J_5\"K_5\"L_5\"M_5\"N_5\"O_5\"P_5\"Q_5\"R_5\"S_5\"T_5\"U_5\"V_5\"W_5\"X_5\"Y_5\"Z_5\"a_5\"b_5\"c_5\"d_5\"e_5\"f_5\"g_5\"h_5\"i_5\"j_5\"k_5\"l_5\"m_5\"n_5\"o_5\"p_5\"q_5\"r_5\"s_5\"t_5\"u_5\"v_5\"w_5\"x_5\"y_5\"z_5\"{10}_5\"{11}_5\"{12}_5\"{13}_5\"{14}_5\"{15}_5\"{16}_5\"{17}_5]0.251.252.253.254.255.256.257.258.259.2510.2511.2512.2513.2514.2515.2516.2517.2518.2519.2520.2521.2522.2523.2524.2525.2526.2527.2528.2529.2530.2531.2532.2533.2534.2535.2536.2537.2538.2539.2540.2541.2542.2543.2544.2545.2546.2547.2548.2549.2550.2551.2552.2553.2554.2555.2556.2557.2558.2559.2560.2561.2562.2563.2564.2565.2566.2567.2568.2569.25",
+      "envelope": {
+        "integrityHash": "f671ddeada146a2f",
+        "bodyLen": 646,
+        "schemaLen": 306,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "[\"0_4\"1_4\"2_4\"3_4\"4_4\"5_4\"6_4\"7_4\"8_4\"9_4\"A_5\"B_5\"C_5\"D_5\"E_5\"F_5\"G_5\"H_5\"I_5\"J_5\"K_5\"L_5\"M_5\"N_5\"O_5\"P_5\"Q_5\"R_5\"S_5\"T_5\"U_5\"V_5\"W_5\"X_5\"Y_5\"Z_5\"a_5\"b_5\"c_5\"d_5\"e_5\"f_5\"g_5\"h_5\"i_5\"j_5\"k_5\"l_5\"m_5\"n_5\"o_5\"p_5\"q_5\"r_5\"s_5\"t_5\"u_5\"v_5\"w_5\"x_5\"y_5\"z_5\"{10}_5\"{11}_5\"{12}_5\"{13}_5\"{14}_5\"{15}_5\"{16}_5\"{17}_5]0.251.252.253.254.255.256.257.258.259.2510.2511.2512.2513.2514.2515.2516.2517.2518.2519.2520.2521.2522.2523.2524.2525.2526.2527.2528.2529.2530.2531.2532.2533.2534.2535.2536.2537.2538.2539.2540.2541.2542.2543.2544.2545.2546.2547.2548.2549.2550.2551.2552.2553.2554.2555.2556.2557.2558.2559.2560.2561.2562.2563.2564.2565.2566.2567.2568.2569.25",
+        "T": "[\"0_4\"1_4\"2_4\"3_4\"4_4\"5_4\"6_4\"7_4\"8_4\"9_4\"A_5\"B_5\"C_5\"D_5\"E_5\"F_5\"G_5\"H_5\"I_5\"J_5\"K_5\"L_5\"M_5\"N_5\"O_5\"P_5\"Q_5\"R_5\"S_5\"T_5\"U_5\"V_5\"W_5\"X_5\"Y_5\"Z_5\"a_5\"b_5\"c_5\"d_5\"e_5\"f_5\"g_5\"h_5\"i_5\"j_5\"k_5\"l_5\"m_5\"n_5\"o_5\"p_5\"q_5\"r_5\"s_5\"t_5\"u_5\"v_5\"w_5\"x_5\"y_5\"z_5\"{10}_5\"{11}_5\"{12}_5\"{13}_5\"{14}_5\"{15}_5\"{16}_5\"{17}_5]",
+        "K": "",
+        "G": "",
+        "V": "0.251.252.253.254.255.256.257.258.259.2510.2511.2512.2513.2514.2515.2516.2517.2518.2519.2520.2521.2522.2523.2524.2525.2526.2527.2528.2529.2530.2531.2532.2533.2534.2535.2536.2537.2538.2539.2540.2541.2542.2543.2544.2545.2546.2547.2548.2549.2550.2551.2552.2553.2554.2555.2556.2557.2558.2559.2560.2561.2562.2563.2564.2565.2566.2567.2568.2569.25",
+        "payload": "646.306.0.0:[\"0_4\"1_4\"2_4\"3_4\"4_4\"5_4\"6_4\"7_4\"8_4\"9_4\"A_5\"B_5\"C_5\"D_5\"E_5\"F_5\"G_5\"H_5\"I_5\"J_5\"K_5\"L_5\"M_5\"N_5\"O_5\"P_5\"Q_5\"R_5\"S_5\"T_5\"U_5\"V_5\"W_5\"X_5\"Y_5\"Z_5\"a_5\"b_5\"c_5\"d_5\"e_5\"f_5\"g_5\"h_5\"i_5\"j_5\"k_5\"l_5\"m_5\"n_5\"o_5\"p_5\"q_5\"r_5\"s_5\"t_5\"u_5\"v_5\"w_5\"x_5\"y_5\"z_5\"{10}_5\"{11}_5\"{12}_5\"{13}_5\"{14}_5\"{15}_5\"{16}_5\"{17}_5]0.251.252.253.254.255.256.257.258.259.2510.2511.2512.2513.2514.2515.2516.2517.2518.2519.2520.2521.2522.2523.2524.2525.2526.2527.2528.2529.2530.2531.2532.2533.2534.2535.2536.2537.2538.2539.2540.2541.2542.2543.2544.2545.2546.2547.2548.2549.2550.2551.2552.2553.2554.2555.2556.2557.2558.2559.2560.2561.2562.2563.2564.2565.2566.2567.2568.2569.25"
+      }
+    },
+    {
+      "id": "encode-only-deep-object-chain",
+      "kind": "encode",
+      "description": "Deep nested object encoding keeps schema refs deterministic.",
+      "features": ["encode-only", "object", "nested", "deep"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "k1": {
+          "k2": {
+            "k3": {
+              "k4": {
+                "k5": {
+                  "k6": {
+                    "k7": {
+                      "k8": {
+                        "k9": {
+                          "k10": {
+                            "k11": {
+                              "k12": "leaf"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "hbs": "hbs3.5ca0585c2e805d5f.96.52.38.0:{@0{@1{@2{@3{@4{@5{@6{@7{@8{@9{@A{@B'0_6}}}}}}}}}}}}k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12\"leaf\"",
+      "envelope": {
+        "integrityHash": "5ca0585c2e805d5f",
+        "bodyLen": 96,
+        "schemaLen": 52,
+        "keysLen": 38,
+        "guardsLen": 0,
+        "body": "{@0{@1{@2{@3{@4{@5{@6{@7{@8{@9{@A{@B'0_6}}}}}}}}}}}}k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12\"leaf\"",
+        "T": "{@0{@1{@2{@3{@4{@5{@6{@7{@8{@9{@A{@B'0_6}}}}}}}}}}}}",
+        "K": "k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12",
+        "G": "",
+        "V": "\"leaf\"",
+        "payload": "96.52.38.0:{@0{@1{@2{@3{@4{@5{@6{@7{@8{@9{@A{@B'0_6}}}}}}}}}}}}k1,k2,k3,k4,k5,k6,k7,k8,k9,k10,k11,k12\"leaf\""
+      }
+    },
+    {
+      "id": "encode-only-deep-array-chain",
+      "kind": "encode",
+      "description": "Deep nested array encoding keeps bracket structure deterministic.",
+      "features": ["encode-only", "array", "nested", "deep"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [[[[[[[[[[[["leaf"]]]]]]]]]]]],
+      "hbs": "hbs3.7974279d4943af22.34.28.0.0:[[[[[[[[[[[['0_6]]]]]]]]]]]]\"leaf\"",
+      "envelope": {
+        "integrityHash": "7974279d4943af22",
+        "bodyLen": 34,
+        "schemaLen": 28,
+        "keysLen": 0,
+        "guardsLen": 0,
+        "body": "[[[[[[[[[[[['0_6]]]]]]]]]]]]\"leaf\"",
+        "T": "[[[[[[[[[[[['0_6]]]]]]]]]]]]",
+        "K": "",
+        "G": "",
+        "V": "\"leaf\"",
+        "payload": "34.28.0.0:[[[[[[[[[[[['0_6]]]]]]]]]]]]\"leaf\""
+      }
+    },
+    {
+      "id": "encode-only-short-integrity-tag",
+      "kind": "encode",
+      "description": "SHA-256 integrity supports short deterministic tags.",
+      "features": ["encode-only", "integrity", "sha256", "short-tag"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 8
+        },
+        "guards": false
+      },
+      "input": {
+        "tag": "short",
+        "n": 8
+      },
+      "hbs": "hbs3.78530e5d.27.14.5.0:{@0\"0_1@1'0_7}n,tag8\"short\"",
+      "envelope": {
+        "integrityHash": "78530e5d",
+        "bodyLen": 27,
+        "schemaLen": 14,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1'0_7}n,tag8\"short\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "n,tag",
+        "G": "",
+        "V": "8\"short\"",
+        "payload": "27.14.5.0:{@0\"0_1@1'0_7}n,tag8\"short\""
+      }
+    },
+    {
+      "id": "encode-only-min-integrity-tag",
+      "kind": "encode",
+      "description": "SHA-256 integrity supports the minimum valid two-hex-character tag.",
+      "features": ["encode-only", "integrity", "sha256", "min-tag"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 2
+        },
+        "guards": false
+      },
+      "input": {
+        "tag": "min",
+        "n": 2
+      },
+      "hbs": "hbs3.d0.25.14.5.0:{@0\"0_1@1'0_5}n,tag2\"min\"",
+      "envelope": {
+        "integrityHash": "d0",
+        "bodyLen": 25,
+        "schemaLen": 14,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1'0_5}n,tag2\"min\"",
+        "T": "{@0\"0_1@1'0_5}",
+        "K": "n,tag",
+        "G": "",
+        "V": "2\"min\"",
+        "payload": "25.14.5.0:{@0\"0_1@1'0_5}n,tag2\"min\""
+      }
+    },
+    {
+      "id": "encode-only-short-guard-tags",
+      "kind": "encode",
+      "description": "Public per-slot guards can use the minimum valid two-hex-character tags.",
+      "features": ["encode-only", "guards", "short-tag", "slot-order"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 12
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 2
+        }
+      },
+      "input": {
+        "a": "same",
+        "b": "same",
+        "c": 9,
+        "d": 9,
+        "e": "other",
+        "f": 10
+      },
+      "hbs": "hbs3.6f835915cf4c.76.38.11.11:{@0'0_6@1'0_6@2\"0_1@3\"0_1@4'1_7@5\"1_2}a,b,c,d,e,f6c,b6,10,19\"same\"9\"other\"10",
+      "envelope": {
+        "integrityHash": "6f835915cf4c",
+        "bodyLen": 76,
+        "schemaLen": 38,
+        "keysLen": 11,
+        "guardsLen": 11,
+        "body": "{@0'0_6@1'0_6@2\"0_1@3\"0_1@4'1_7@5\"1_2}a,b,c,d,e,f6c,b6,10,19\"same\"9\"other\"10",
+        "T": "{@0'0_6@1'0_6@2\"0_1@3\"0_1@4'1_7@5\"1_2}",
+        "K": "a,b,c,d,e,f",
+        "G": "6c,b6,10,19",
+        "V": "\"same\"9\"other\"10",
+        "payload": "76.38.11.11:{@0'0_6@1'0_6@2\"0_1@3\"0_1@4'1_7@5\"1_2}a,b,c,d,e,f6c,b6,10,19\"same\"9\"other\"10"
+      }
+    },
+    {
+      "id": "encode-only-hmac-extended-refs-and-guards",
+      "kind": "encode",
+      "description": "HMAC integrity and HMAC guards combine with extended key and slot refs.",
+      "features": [
+        "encode-only",
+        "hmac-integrity",
+        "hmac-guards",
+        "extended-refs"
+      ],
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-integrity-secret",
+          "tagLength": 20
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-guard-secret",
+          "tagLength": 8
+        }
+      },
+      "input": {
+        "k69": "v69",
+        "k68": "v68",
+        "k67": "v67",
+        "k66": "v66",
+        "k65": "v65",
+        "k64": "v64",
+        "k63": "v63",
+        "k62": "v62",
+        "k61": "v61",
+        "k60": "v60",
+        "k59": "v59",
+        "k58": "v58",
+        "k57": "v57",
+        "k56": "v56",
+        "k55": "v55",
+        "k54": "v54",
+        "k53": "v53",
+        "k52": "v52",
+        "k51": "v51",
+        "k50": "v50",
+        "k49": "v49",
+        "k48": "v48",
+        "k47": "v47",
+        "k46": "v46",
+        "k45": "v45",
+        "k44": "v44",
+        "k43": "v43",
+        "k42": "v42",
+        "k41": "v41",
+        "k40": "v40",
+        "k39": "v39",
+        "k38": "v38",
+        "k37": "v37",
+        "k36": "v36",
+        "k35": "v35",
+        "k34": "v34",
+        "k33": "v33",
+        "k32": "v32",
+        "k31": "v31",
+        "k30": "v30",
+        "k29": "v29",
+        "k28": "v28",
+        "k27": "v27",
+        "k26": "v26",
+        "k25": "v25",
+        "k24": "v24",
+        "k23": "v23",
+        "k22": "v22",
+        "k21": "v21",
+        "k20": "v20",
+        "k19": "v19",
+        "k18": "v18",
+        "k17": "v17",
+        "k16": "v16",
+        "k15": "v15",
+        "k14": "v14",
+        "k13": "v13",
+        "k12": "v12",
+        "k11": "v11",
+        "k10": "v10",
+        "k09": "v09",
+        "k08": "v08",
+        "k07": "v07",
+        "k06": "v06",
+        "k05": "v05",
+        "k04": "v04",
+        "k03": "v03",
+        "k02": "v02",
+        "k01": "v01",
+        "k00": "v00"
+      },
+      "hbs": "hbs3.388e5a914b93a6c2176a.1728.470.279.629:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5@{14}'{14}_5@{15}'{15}_5@{16}'{16}_5@{17}'{17}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65,k66,k67,k68,k6937acf1ef,bf3d8084,c8fb1d5b,71c1fdf0,868e7e83,64af3352,59719742,d4a3f1f4,22323860,6e9799d0,7166738c,4e1da99d,53703040,85b0b14b,4512da6e,4d86820d,9fe4a263,f126c76d,edb6d695,c8360902,e5640345,922287b2,3b7f6f7a,d6802454,5b2a2af2,8709e6f1,b7aa2960,78317be1,d023feca,46044cd5,5e9229db,6d26d7fa,3a01b8d1,98d62c5c,fb549792,dcea3db7,5a97f0d4,863acd20,06c4bf21,5b6bdfa1,87b2b0f7,f41f7994,7a02c996,f19e646c,493373c8,b791a874,5b89d3a4,b3132839,e6e66d2d,02c0a0f5,ecdf39dd,a752d7f2,45abcb89,a002ce62,c852d789,f1ee2f83,9d02bfc4,dce72cf2,0a23f851,747237df,7f40c842,3e1528f2,c32d47d6,90dd2c2d,a8013835,082cbd93,1aa41319,18fe5a3a,79dd07c6,0c3a89c7\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"\"v66\"\"v67\"\"v68\"\"v69\"",
+      "envelope": {
+        "integrityHash": "388e5a914b93a6c2176a",
+        "bodyLen": 1728,
+        "schemaLen": 470,
+        "keysLen": 279,
+        "guardsLen": 629,
+        "body": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5@{14}'{14}_5@{15}'{15}_5@{16}'{16}_5@{17}'{17}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65,k66,k67,k68,k6937acf1ef,bf3d8084,c8fb1d5b,71c1fdf0,868e7e83,64af3352,59719742,d4a3f1f4,22323860,6e9799d0,7166738c,4e1da99d,53703040,85b0b14b,4512da6e,4d86820d,9fe4a263,f126c76d,edb6d695,c8360902,e5640345,922287b2,3b7f6f7a,d6802454,5b2a2af2,8709e6f1,b7aa2960,78317be1,d023feca,46044cd5,5e9229db,6d26d7fa,3a01b8d1,98d62c5c,fb549792,dcea3db7,5a97f0d4,863acd20,06c4bf21,5b6bdfa1,87b2b0f7,f41f7994,7a02c996,f19e646c,493373c8,b791a874,5b89d3a4,b3132839,e6e66d2d,02c0a0f5,ecdf39dd,a752d7f2,45abcb89,a002ce62,c852d789,f1ee2f83,9d02bfc4,dce72cf2,0a23f851,747237df,7f40c842,3e1528f2,c32d47d6,90dd2c2d,a8013835,082cbd93,1aa41319,18fe5a3a,79dd07c6,0c3a89c7\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"\"v66\"\"v67\"\"v68\"\"v69\"",
+        "T": "{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5@{14}'{14}_5@{15}'{15}_5@{16}'{16}_5@{17}'{17}_5}",
+        "K": "k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65,k66,k67,k68,k69",
+        "G": "37acf1ef,bf3d8084,c8fb1d5b,71c1fdf0,868e7e83,64af3352,59719742,d4a3f1f4,22323860,6e9799d0,7166738c,4e1da99d,53703040,85b0b14b,4512da6e,4d86820d,9fe4a263,f126c76d,edb6d695,c8360902,e5640345,922287b2,3b7f6f7a,d6802454,5b2a2af2,8709e6f1,b7aa2960,78317be1,d023feca,46044cd5,5e9229db,6d26d7fa,3a01b8d1,98d62c5c,fb549792,dcea3db7,5a97f0d4,863acd20,06c4bf21,5b6bdfa1,87b2b0f7,f41f7994,7a02c996,f19e646c,493373c8,b791a874,5b89d3a4,b3132839,e6e66d2d,02c0a0f5,ecdf39dd,a752d7f2,45abcb89,a002ce62,c852d789,f1ee2f83,9d02bfc4,dce72cf2,0a23f851,747237df,7f40c842,3e1528f2,c32d47d6,90dd2c2d,a8013835,082cbd93,1aa41319,18fe5a3a,79dd07c6,0c3a89c7",
+        "V": "\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"\"v66\"\"v67\"\"v68\"\"v69\"",
+        "payload": "1728.470.279.629:{@0'0_5@1'1_5@2'2_5@3'3_5@4'4_5@5'5_5@6'6_5@7'7_5@8'8_5@9'9_5@A'A_5@B'B_5@C'C_5@D'D_5@E'E_5@F'F_5@G'G_5@H'H_5@I'I_5@J'J_5@K'K_5@L'L_5@M'M_5@N'N_5@O'O_5@P'P_5@Q'Q_5@R'R_5@S'S_5@T'T_5@U'U_5@V'V_5@W'W_5@X'X_5@Y'Y_5@Z'Z_5@a'a_5@b'b_5@c'c_5@d'd_5@e'e_5@f'f_5@g'g_5@h'h_5@i'i_5@j'j_5@k'k_5@l'l_5@m'm_5@n'n_5@o'o_5@p'p_5@q'q_5@r'r_5@s's_5@t't_5@u'u_5@v'v_5@w'w_5@x'x_5@y'y_5@z'z_5@{10}'{10}_5@{11}'{11}_5@{12}'{12}_5@{13}'{13}_5@{14}'{14}_5@{15}'{15}_5@{16}'{16}_5@{17}'{17}_5}k00,k01,k02,k03,k04,k05,k06,k07,k08,k09,k10,k11,k12,k13,k14,k15,k16,k17,k18,k19,k20,k21,k22,k23,k24,k25,k26,k27,k28,k29,k30,k31,k32,k33,k34,k35,k36,k37,k38,k39,k40,k41,k42,k43,k44,k45,k46,k47,k48,k49,k50,k51,k52,k53,k54,k55,k56,k57,k58,k59,k60,k61,k62,k63,k64,k65,k66,k67,k68,k6937acf1ef,bf3d8084,c8fb1d5b,71c1fdf0,868e7e83,64af3352,59719742,d4a3f1f4,22323860,6e9799d0,7166738c,4e1da99d,53703040,85b0b14b,4512da6e,4d86820d,9fe4a263,f126c76d,edb6d695,c8360902,e5640345,922287b2,3b7f6f7a,d6802454,5b2a2af2,8709e6f1,b7aa2960,78317be1,d023feca,46044cd5,5e9229db,6d26d7fa,3a01b8d1,98d62c5c,fb549792,dcea3db7,5a97f0d4,863acd20,06c4bf21,5b6bdfa1,87b2b0f7,f41f7994,7a02c996,f19e646c,493373c8,b791a874,5b89d3a4,b3132839,e6e66d2d,02c0a0f5,ecdf39dd,a752d7f2,45abcb89,a002ce62,c852d789,f1ee2f83,9d02bfc4,dce72cf2,0a23f851,747237df,7f40c842,3e1528f2,c32d47d6,90dd2c2d,a8013835,082cbd93,1aa41319,18fe5a3a,79dd07c6,0c3a89c7\"v00\"\"v01\"\"v02\"\"v03\"\"v04\"\"v05\"\"v06\"\"v07\"\"v08\"\"v09\"\"v10\"\"v11\"\"v12\"\"v13\"\"v14\"\"v15\"\"v16\"\"v17\"\"v18\"\"v19\"\"v20\"\"v21\"\"v22\"\"v23\"\"v24\"\"v25\"\"v26\"\"v27\"\"v28\"\"v29\"\"v30\"\"v31\"\"v32\"\"v33\"\"v34\"\"v35\"\"v36\"\"v37\"\"v38\"\"v39\"\"v40\"\"v41\"\"v42\"\"v43\"\"v44\"\"v45\"\"v46\"\"v47\"\"v48\"\"v49\"\"v50\"\"v51\"\"v52\"\"v53\"\"v54\"\"v55\"\"v56\"\"v57\"\"v58\"\"v59\"\"v60\"\"v61\"\"v62\"\"v63\"\"v64\"\"v65\"\"v66\"\"v67\"\"v68\"\"v69\""
+      }
+    },
+    {
+      "id": "encode-only-default-options-table",
+      "kind": "encode",
+      "description": "Default options can still select table mode for homogeneous array roots.",
+      "features": ["encode-only", "defaults", "array", "table"],
+      "options": {},
+      "input": [
+        {
+          "a": 1
+        },
+        {
+          "a": 2
+        }
+      ],
+      "hbs": "hbs3.2c390ea8486bf630.17.14.1.0:[~1.2:@0\"1:01]a12",
+      "envelope": {
+        "integrityHash": "2c390ea8486bf630",
+        "bodyLen": 17,
+        "schemaLen": 14,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "[~1.2:@0\"1:01]a12",
+        "T": "[~1.2:@0\"1:01]",
+        "K": "a",
+        "G": "",
+        "V": "12",
+        "payload": "17.14.1.0:[~1.2:@0\"1:01]a12"
+      }
+    },
+    {
+      "id": "encode-only-literal-only-object",
+      "kind": "encode",
+      "description": "Objects containing only true, false, and null have an empty scalar stream.",
+      "features": ["encode-only", "object", "literals", "no-slots"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "t": true,
+        "f": false,
+        "n": null
+      },
+      "hbs": "hbs3.5981a8749b518249.16.11.5.0:{@0f@1z@2t}f,n,t",
+      "envelope": {
+        "integrityHash": "5981a8749b518249",
+        "bodyLen": 16,
+        "schemaLen": 11,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "{@0f@1z@2t}f,n,t",
+        "T": "{@0f@1z@2t}",
+        "K": "f,n,t",
+        "G": "",
+        "V": "",
+        "payload": "16.11.5.0:{@0f@1z@2t}f,n,t"
+      }
+    },
+    {
+      "id": "encode-only-root-array-mixed-nodes",
+      "kind": "encode",
+      "description": "A root array can mix containers, scalars, and literals without table mode.",
+      "features": ["encode-only", "array", "root", "mixed-nodes"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "a": 1
+        },
+        ["x"],
+        true,
+        null,
+        "z"
+      ],
+      "hbs": "hbs3.96855e7145e4fdf0.30.22.1.0:[{@0\"0_1}['0_3]tz'1_3]a1\"x\"\"z\"",
+      "envelope": {
+        "integrityHash": "96855e7145e4fdf0",
+        "bodyLen": 30,
+        "schemaLen": 22,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "[{@0\"0_1}['0_3]tz'1_3]a1\"x\"\"z\"",
+        "T": "[{@0\"0_1}['0_3]tz'1_3]",
+        "K": "a",
+        "G": "",
+        "V": "1\"x\"\"z\"",
+        "payload": "30.22.1.0:[{@0\"0_1}['0_3]tz'1_3]a1\"x\"\"z\""
+      }
+    },
+    {
+      "id": "encode-only-single-row-node-table",
+      "kind": "encode",
+      "description": "A single-row table can contain object and array node columns.",
+      "features": ["encode-only", "table", "single-row", "node-column"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "id": 1,
+          "meta": {
+            "ok": true
+          },
+          "tags": ["a", "b"]
+        }
+      ],
+      "hbs": "hbs3.d999a9ce4b638e38.56.34.15.0:[~3.1:@0\"1@1{@2[:0{@3t}['0_3'1_3]]id,meta,tags,ok1\"a\"\"b\"",
+      "envelope": {
+        "integrityHash": "d999a9ce4b638e38",
+        "bodyLen": 56,
+        "schemaLen": 34,
+        "keysLen": 15,
+        "guardsLen": 0,
+        "body": "[~3.1:@0\"1@1{@2[:0{@3t}['0_3'1_3]]id,meta,tags,ok1\"a\"\"b\"",
+        "T": "[~3.1:@0\"1@1{@2[:0{@3t}['0_3'1_3]]",
+        "K": "id,meta,tags,ok",
+        "G": "",
+        "V": "1\"a\"\"b\"",
+        "payload": "56.34.15.0:[~3.1:@0\"1@1{@2[:0{@3t}['0_3'1_3]]id,meta,tags,ok1\"a\"\"b\""
+      }
+    },
+    {
+      "id": "encode-only-table-fixed-empty-string-column",
+      "kind": "encode",
+      "description": "A table column of empty strings uses the fixed-width string descriptor.",
+      "features": ["encode-only", "table", "fixed-slot", "empty-string"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "text": ""
+        },
+        {
+          "text": ""
+        }
+      ],
+      "hbs": "hbs3.cb241f80ce377065.20.14.4.0:[~1.2:@0'2:00]text\"\"",
+      "envelope": {
+        "integrityHash": "cb241f80ce377065",
+        "bodyLen": 20,
+        "schemaLen": 14,
+        "keysLen": 4,
+        "guardsLen": 0,
+        "body": "[~1.2:@0'2:00]text\"\"",
+        "T": "[~1.2:@0'2:00]",
+        "K": "text",
+        "G": "",
+        "V": "\"\"",
+        "payload": "20.14.4.0:[~1.2:@0'2:00]text\"\""
+      }
+    },
+    {
+      "id": "encode-only-table-empty-array-column",
+      "kind": "encode",
+      "description": "A table column of empty arrays uses the array node marker with empty child schemas.",
+      "features": ["encode-only", "table", "node-column", "empty-array"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "items": []
+        },
+        {
+          "items": []
+        }
+      ],
+      "hbs": "hbs3.360f4606f4a64cc1.20.15.5.0:[~1.2:@0[:[][]]items",
+      "envelope": {
+        "integrityHash": "360f4606f4a64cc1",
+        "bodyLen": 20,
+        "schemaLen": 15,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "[~1.2:@0[:[][]]items",
+        "T": "[~1.2:@0[:[][]]",
+        "K": "items",
+        "G": "",
+        "V": "",
+        "payload": "20.15.5.0:[~1.2:@0[:[][]]items"
+      }
+    },
+    {
+      "id": "truncated-value-stream",
+      "kind": "decode",
+      "description": "Truncated body after one complete value slot keeps checksum null and reports a missing slot.",
+      "features": ["partial-decode", "truncated-body", "missing-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.67df06c13651612d.46.17.17.0:{@0t@1\"0_5@2'0_7}active,count,name12345",
+      "envelope": {
+        "integrityHash": "67df06c13651612d",
+        "bodyLen": 46,
+        "schemaLen": 17,
+        "keysLen": 17,
+        "guardsLen": 0,
+        "body": "{@0t@1\"0_5@2'0_7}active,count,name12345",
+        "T": "{@0t@1\"0_5@2'0_7}",
+        "K": "active,count,name",
+        "G": "",
+        "V": "12345",
+        "payload": "46.17.17.0:{@0t@1\"0_5@2'0_7}active,count,name12345"
+      },
+      "expectedDecode": {
+        "value": {
+          "active": true,
+          "count": 12345
+        },
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/name",
+            "kind": "missing-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 7
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "truncated-string-slot",
+      "kind": "decode",
+      "description": "Truncated string slot reports available byte length.",
+      "features": ["partial-decode", "truncated-slot", "available-length"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.b612d4774cec8714.31.14.9.0:{@0'0_7@1\"0_1}name,next\"al",
+      "envelope": {
+        "integrityHash": "b612d4774cec8714",
+        "bodyLen": 31,
+        "schemaLen": 14,
+        "keysLen": 9,
+        "guardsLen": 0,
+        "body": "{@0'0_7@1\"0_1}name,next\"al",
+        "T": "{@0'0_7@1\"0_1}",
+        "K": "name,next",
+        "G": "",
+        "V": "\"al",
+        "payload": "31.14.9.0:{@0'0_7@1\"0_1}name,next\"al"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/name",
+            "kind": "truncated-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 7,
+            "availableLength": 3
+          },
+          {
+            "path": "/next",
+            "kind": "missing-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 1
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "truncated-key-comma-boundary",
+      "kind": "decode",
+      "description": "K truncated exactly after a comma uses only complete key entries and reports missing key/slot holes.",
+      "features": ["partial-decode", "truncated-keys", "missing-key"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.3c362aad12708cb2.22.14.6.0:{@0\"0_1@1\"1_1}a,",
+      "envelope": {
+        "integrityHash": "3c362aad12708cb2",
+        "bodyLen": 22,
+        "schemaLen": 14,
+        "keysLen": 6,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1\"1_1}a,",
+        "T": "{@0\"0_1@1\"1_1}",
+        "K": "a,",
+        "G": "",
+        "V": "",
+        "payload": "22.14.6.0:{@0\"0_1@1\"1_1}a,"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/a",
+            "kind": "missing-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 1
+          },
+          {
+            "path": "",
+            "kind": "missing-key"
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "truncated-key-final-entry-without-comma",
+      "kind": "decode",
+      "description": "A truncated key dictionary final entry without an observed comma is incomplete.",
+      "features": ["partial-decode", "truncated-keys", "missing-key"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.3c362aad12708cb2.22.14.6.0:{@0\"0_1@1\"1_1}a",
+      "envelope": {
+        "integrityHash": "3c362aad12708cb2",
+        "bodyLen": 22,
+        "schemaLen": 14,
+        "keysLen": 6,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1\"1_1}a",
+        "T": "{@0\"0_1@1\"1_1}",
+        "K": "a",
+        "G": "",
+        "V": "",
+        "payload": "22.14.6.0:{@0\"0_1@1\"1_1}a"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "",
+            "kind": "missing-key"
+          },
+          {
+            "path": "",
+            "kind": "missing-key"
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "missing-entire-value-stream",
+      "kind": "decode",
+      "description": "When V is unavailable, booleans/nulls recover and scalar slots become holes.",
+      "features": ["partial-decode", "missing-slot", "schema-literals"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.67df06c13651612d.46.17.17.0:{@0t@1\"0_5@2'0_7}active,count,name",
+      "envelope": {
+        "integrityHash": "67df06c13651612d",
+        "bodyLen": 46,
+        "schemaLen": 17,
+        "keysLen": 17,
+        "guardsLen": 0,
+        "body": "{@0t@1\"0_5@2'0_7}active,count,name",
+        "T": "{@0t@1\"0_5@2'0_7}",
+        "K": "active,count,name",
+        "G": "",
+        "V": "",
+        "payload": "46.17.17.0:{@0t@1\"0_5@2'0_7}active,count,name"
+      },
+      "expectedDecode": {
+        "value": {
+          "active": true
+        },
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/count",
+            "kind": "missing-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 5
+          },
+          {
+            "path": "/name",
+            "kind": "missing-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 7
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "nested-array-missing-slot-placeholder",
+      "kind": "decode",
+      "description": "Missing array elements decode as null placeholders while still reporting holes.",
+      "features": [
+        "partial-decode",
+        "array",
+        "missing-slot",
+        "json-placeholder"
+      ],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.9217a570e4f89b3e.25.14.5.0:{@0['0_3'1_3]}items\"a\"",
+      "envelope": {
+        "integrityHash": "9217a570e4f89b3e",
+        "bodyLen": 25,
+        "schemaLen": 14,
+        "keysLen": 5,
+        "guardsLen": 0,
+        "body": "{@0['0_3'1_3]}items\"a\"",
+        "T": "{@0['0_3'1_3]}",
+        "K": "items",
+        "G": "",
+        "V": "\"a\"",
+        "payload": "25.14.5.0:{@0['0_3'1_3]}items\"a\""
+      },
+      "expectedDecode": {
+        "value": {
+          "items": ["a", null]
+        },
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/items/1",
+            "kind": "missing-slot",
+            "slot": "'1",
+            "expectedType": "string",
+            "expectedLength": 3
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "reused-slot-missing-multiple-holes",
+      "kind": "decode",
+      "description": "A missing reused slot reports a hole for every referencing path.",
+      "features": ["missing-slot", "slot-reuse", "holes"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fc35e9edc5746a6f.17.14.3.0:{@0'0_3@1'0_3}a,b",
+      "envelope": {
+        "integrityHash": "fc35e9edc5746a6f",
+        "bodyLen": 17,
+        "schemaLen": 14,
+        "keysLen": 3,
+        "guardsLen": 0,
+        "body": "{@0'0_3@1'0_3}a,b",
+        "T": "{@0'0_3@1'0_3}",
+        "K": "a,b",
+        "G": "",
+        "V": "",
+        "payload": "17.14.3.0:{@0'0_3@1'0_3}a,b"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/a",
+            "kind": "missing-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 3
+          },
+          {
+            "path": "/b",
+            "kind": "missing-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 3
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "reused-slot-invalid-multiple-holes",
+      "kind": "decode",
+      "description": "An invalid reused slot reports invalid-slot at every referencing path.",
+      "features": ["invalid-slot", "slot-reuse", "holes"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.1cb2b388ebd63c36.21.14.3.0:{@0\"0_4@1\"0_4}a,btrue",
+      "envelope": {
+        "integrityHash": "1cb2b388ebd63c36",
+        "bodyLen": 21,
+        "schemaLen": 14,
+        "keysLen": 3,
+        "guardsLen": 0,
+        "body": "{@0\"0_4@1\"0_4}a,btrue",
+        "T": "{@0\"0_4@1\"0_4}",
+        "K": "a,b",
+        "G": "",
+        "V": "true",
+        "payload": "21.14.3.0:{@0\"0_4@1\"0_4}a,btrue"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/a",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 4
+          },
+          {
+            "path": "/b",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 4
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "missing-key-reference",
+      "kind": "decode",
+      "description": "Schema key reference beyond the available dictionary becomes a missing-key hole.",
+      "features": ["partial-decode", "missing-key"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.56eb4ba5cd10ca4e.10.8.1.0:{@1\"0_1}a1",
+      "envelope": {
+        "integrityHash": "56eb4ba5cd10ca4e",
+        "bodyLen": 10,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@1\"0_1}a1",
+        "T": "{@1\"0_1}",
+        "K": "a",
+        "G": "",
+        "V": "1",
+        "payload": "10.8.1.0:{@1\"0_1}a1"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "",
+            "kind": "missing-key"
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "truncated-guard-section",
+      "kind": "decode",
+      "description": "Truncated guard entry is reported while value stream is unavailable.",
+      "features": ["guards", "partial-decode", "truncated-guard"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.84237660ec1fd709.45.14.10.13:{@0\"0_1@1'0_7}count,namee98a",
+      "envelope": {
+        "integrityHash": "84237660ec1fd709",
+        "bodyLen": 45,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 13,
+        "body": "{@0\"0_1@1'0_7}count,namee98a",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "e98a",
+        "V": "",
+        "payload": "45.14.10.13:{@0\"0_1@1'0_7}count,namee98a"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": true,
+        "checksum": null,
+        "holes": [
+          {
+            "path": "/count",
+            "kind": "missing-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 1
+          },
+          {
+            "path": "/name",
+            "kind": "missing-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 7
+          }
+        ],
+        "slotGuards": {
+          "\"0": null,
+          "'0": null
+        },
+        "guardIssues": [
+          {
+            "index": 0,
+            "kind": "truncated-guard",
+            "slot": "\"0",
+            "expectedLength": 6,
+            "availableLength": 4
+          },
+          {
+            "index": 1,
+            "kind": "missing-guard",
+            "slot": "'0",
+            "expectedLength": 6,
+            "availableLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "truncated-guard-entry-complete-body",
+      "kind": "decode",
+      "description": "A short guard entry in a complete body reports truncated-guard without making the whole decode fail.",
+      "features": ["guards", "truncated-guard", "complete-body"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.0c87a6109bfcd968.18.8.5.4:{@0\"0_1}count05fd1",
+      "envelope": {
+        "integrityHash": "0c87a6109bfcd968",
+        "bodyLen": 18,
+        "schemaLen": 8,
+        "keysLen": 5,
+        "guardsLen": 4,
+        "body": "{@0\"0_1}count05fd1",
+        "T": "{@0\"0_1}",
+        "K": "count",
+        "G": "05fd",
+        "V": "1",
+        "payload": "18.8.5.4:{@0\"0_1}count05fd1"
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 1
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": null
+        },
+        "guardIssues": [
+          {
+            "index": 0,
+            "kind": "truncated-guard",
+            "slot": "\"0",
+            "expectedLength": 6,
+            "availableLength": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "uppercase-guard-entry",
+      "kind": "decode",
+      "description": "Uppercase hexadecimal guard text is invalid because guard entries are lowercase hex.",
+      "features": ["guards", "invalid-guard", "lowercase-hex"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.26e5f26c194c9dab.45.14.10.13:{@0\"0_1@1'0_7}count,nameE98A2F,63304C3\"alice\"",
+      "envelope": {
+        "integrityHash": "26e5f26c194c9dab",
+        "bodyLen": 45,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 13,
+        "body": "{@0\"0_1@1'0_7}count,nameE98A2F,63304C3\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "E98A2F,63304C",
+        "V": "3\"alice\"",
+        "payload": "45.14.10.13:{@0\"0_1@1'0_7}count,nameE98A2F,63304C3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": null,
+          "'0": null
+        },
+        "guardIssues": [
+          {
+            "index": 0,
+            "kind": "invalid-guard",
+            "slot": "\"0",
+            "expectedLength": 6,
+            "availableLength": 6
+          },
+          {
+            "index": 1,
+            "kind": "invalid-guard",
+            "slot": "'0",
+            "expectedLength": 6,
+            "availableLength": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing-guard-entry",
+      "kind": "decode",
+      "description": "Missing guard entry reports guard issue but still decodes available values.",
+      "features": ["guards", "missing-guard"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.4dbd573bf8281891.38.14.10.6:{@0\"0_1@1'0_7}count,namee98a2f3\"alice\"",
+      "envelope": {
+        "integrityHash": "4dbd573bf8281891",
+        "bodyLen": 38,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 6,
+        "body": "{@0\"0_1@1'0_7}count,namee98a2f3\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "e98a2f",
+        "V": "3\"alice\"",
+        "payload": "38.14.10.6:{@0\"0_1@1'0_7}count,namee98a2f3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true,
+          "'0": null
+        },
+        "guardIssues": [
+          {
+            "index": 1,
+            "kind": "missing-guard",
+            "slot": "'0",
+            "expectedLength": 6,
+            "availableLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "invalid-guard-entry",
+      "kind": "decode",
+      "description": "Non-hex guard entry is an invalid guard issue, not a hard decode failure.",
+      "features": ["guards", "invalid-guard"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.6572a6aab17c8421.20.8.5.6:{@0\"0_1}countzzzzzz3",
+      "envelope": {
+        "integrityHash": "6572a6aab17c8421",
+        "bodyLen": 20,
+        "schemaLen": 8,
+        "keysLen": 5,
+        "guardsLen": 6,
+        "body": "{@0\"0_1}countzzzzzz3",
+        "T": "{@0\"0_1}",
+        "K": "count",
+        "G": "zzzzzz",
+        "V": "3",
+        "payload": "20.8.5.6:{@0\"0_1}countzzzzzz3"
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": null
+        },
+        "guardIssues": [
+          {
+            "index": 0,
+            "kind": "invalid-guard",
+            "slot": "\"0",
+            "expectedLength": 6,
+            "availableLength": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "extra-guard-entry",
+      "kind": "decode",
+      "description": "Extra guard entries are reported separately.",
+      "features": ["guards", "extra-guard"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.3155627491f7a48b.27.8.5.13:{@0\"0_1}counte98a2f,abcdef3",
+      "envelope": {
+        "integrityHash": "3155627491f7a48b",
+        "bodyLen": 27,
+        "schemaLen": 8,
+        "keysLen": 5,
+        "guardsLen": 13,
+        "body": "{@0\"0_1}counte98a2f,abcdef3",
+        "T": "{@0\"0_1}",
+        "K": "count",
+        "G": "e98a2f,abcdef",
+        "V": "3",
+        "payload": "27.8.5.13:{@0\"0_1}counte98a2f,abcdef3"
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true
+        },
+        "guardIssues": [
+          {
+            "index": 1,
+            "kind": "extra-guard",
+            "expectedLength": 6,
+            "availableLength": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "trailing-comma-guard-entry",
+      "kind": "decode",
+      "description": "A trailing comma in G creates an empty extra guard entry.",
+      "features": ["guards", "extra-guard", "empty-guard"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.5fd4841b5d83f8d6.21.8.5.7:{@0\"0_1}counte98a2f,3",
+      "envelope": {
+        "integrityHash": "5fd4841b5d83f8d6",
+        "bodyLen": 21,
+        "schemaLen": 8,
+        "keysLen": 5,
+        "guardsLen": 7,
+        "body": "{@0\"0_1}counte98a2f,3",
+        "T": "{@0\"0_1}",
+        "K": "count",
+        "G": "e98a2f,",
+        "V": "3",
+        "payload": "21.8.5.7:{@0\"0_1}counte98a2f,3"
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true
+        },
+        "guardIssues": [
+          {
+            "index": 1,
+            "kind": "extra-guard",
+            "expectedLength": 6,
+            "availableLength": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "tampered-guarded-body",
+      "kind": "decode",
+      "description": "Full-body tampering gives checksum false and a false slot guard.",
+      "features": ["guards", "checksum-false", "slot-guard-false"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.84237660ec1fd709.45.14.10.13:{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"blice\"",
+      "envelope": {
+        "integrityHash": "84237660ec1fd709",
+        "bodyLen": 45,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 13,
+        "body": "{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"blice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "e98a2f,63304c",
+        "V": "3\"blice\"",
+        "payload": "45.14.10.13:{@0\"0_1@1'0_7}count,namee98a2f,63304c3\"blice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "blice"
+        },
+        "truncated": false,
+        "checksum": false,
+        "holes": [],
+        "slotGuards": {
+          "\"0": true,
+          "'0": false
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "tampered-unguarded-body",
+      "kind": "decode",
+      "description": "Full unguarded body tampering gives checksum false but can still decode structurally.",
+      "features": ["checksum-false", "unguarded"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"blice\"",
+      "envelope": {
+        "integrityHash": "fec323451ec7e3f1",
+        "bodyLen": 19,
+        "schemaLen": 8,
+        "keysLen": 4,
+        "guardsLen": 0,
+        "body": "{@0'0_7}name\"blice\"",
+        "T": "{@0'0_7}",
+        "K": "name",
+        "G": "",
+        "V": "\"blice\"",
+        "payload": "19.8.4.0:{@0'0_7}name\"blice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "name": "blice"
+        },
+        "truncated": false,
+        "checksum": false,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "wrong-hmac-integrity-secret",
+      "kind": "decode",
+      "description": "Decoding with the wrong HMAC integrity secret produces checksum false.",
+      "features": ["hmac-integrity", "checksum-false"],
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "wrong-integrity-secret",
+          "tagLength": 20
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.6a012e12e68b67f5f5f2.32.14.10.0:{@0\"0_1@1'0_7}count,name3\"alice\"",
+      "envelope": {
+        "integrityHash": "6a012e12e68b67f5f5f2",
+        "bodyLen": 32,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 0,
+        "body": "{@0\"0_1@1'0_7}count,name3\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "",
+        "V": "3\"alice\"",
+        "payload": "32.14.10.0:{@0\"0_1@1'0_7}count,name3\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": false,
+        "holes": [],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "wrong-hmac-guard-secret",
+      "kind": "decode",
+      "description": "Decoding with the wrong HMAC guard secret produces false slot guard statuses.",
+      "features": ["hmac-guards", "slot-guard-false"],
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "hbs3-conformance-integrity-secret",
+          "tagLength": 20
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "secret": "wrong-guard-secret",
+          "tagLength": 8
+        }
+      },
+      "hbs": "hbs3.6dec0cbd6537c9de5035.49.14.10.17:{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\"",
+      "envelope": {
+        "integrityHash": "6dec0cbd6537c9de5035",
+        "bodyLen": 49,
+        "schemaLen": 14,
+        "keysLen": 10,
+        "guardsLen": 17,
+        "body": "{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\"",
+        "T": "{@0\"0_1@1'0_7}",
+        "K": "count,name",
+        "G": "76b16506,05ac3d65",
+        "V": "3\"alice\"",
+        "payload": "49.14.10.17:{@0\"0_1@1'0_7}count,name76b16506,05ac3d653\"alice\""
+      },
+      "expectedDecode": {
+        "value": {
+          "count": 3,
+          "name": "alice"
+        },
+        "truncated": false,
+        "checksum": true,
+        "holes": [],
+        "slotGuards": {
+          "\"0": false,
+          "'0": false
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "invalid-number-slot-json",
+      "kind": "decode",
+      "description": "Fully available slot with valid JSON but wrong expected scalar type reports invalid-slot.",
+      "features": ["invalid-slot", "number-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.9c544d6337180d1e.13.8.1.0:{@0\"0_4}ntrue",
+      "envelope": {
+        "integrityHash": "9c544d6337180d1e",
+        "bodyLen": 13,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_4}ntrue",
+        "T": "{@0\"0_4}",
+        "K": "n",
+        "G": "",
+        "V": "true",
+        "payload": "13.8.1.0:{@0\"0_4}ntrue"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 4
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "guarded-invalid-slot-guard-null",
+      "kind": "decode",
+      "description": "A valid-shaped guard for bytes that are not a valid slot value reports a null slot guard.",
+      "features": ["guards", "invalid-slot", "slot-guard-null"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.8162b75b8161e0fa.19.8.1.6:{@0\"0_4}n07cbc9true",
+      "envelope": {
+        "integrityHash": "8162b75b8161e0fa",
+        "bodyLen": 19,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 6,
+        "body": "{@0\"0_4}n07cbc9true",
+        "T": "{@0\"0_4}",
+        "K": "n",
+        "G": "07cbc9",
+        "V": "true",
+        "payload": "19.8.1.6:{@0\"0_4}n07cbc9true"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 4
+          }
+        ],
+        "slotGuards": {
+          "\"0": null
+        },
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "invalid-string-slot-json",
+      "kind": "decode",
+      "description": "Fully available slot with valid JSON but wrong expected string type reports invalid-slot.",
+      "features": ["invalid-slot", "string-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.a9c21b079dba0bd4.11.8.1.0:{@0'0_2}s42",
+      "envelope": {
+        "integrityHash": "a9c21b079dba0bd4",
+        "bodyLen": 11,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0'0_2}s42",
+        "T": "{@0'0_2}",
+        "K": "s",
+        "G": "",
+        "V": "42",
+        "payload": "11.8.1.0:{@0'0_2}s42"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/s",
+            "kind": "invalid-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 2
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "noncanonical-number-slot-json",
+      "kind": "decode",
+      "description": "A number slot with non-canonical JSON spelling reports invalid-slot.",
+      "features": ["invalid-slot", "canonical-json", "number-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.743a31a93701489a.12.8.1.0:{@0\"0_3}n1.0",
+      "envelope": {
+        "integrityHash": "743a31a93701489a",
+        "bodyLen": 12,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_3}n1.0",
+        "T": "{@0\"0_3}",
+        "K": "n",
+        "G": "",
+        "V": "1.0",
+        "payload": "12.8.1.0:{@0\"0_3}n1.0"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 3
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "noncanonical-negative-zero-slot",
+      "kind": "decode",
+      "description": "A number slot spelling negative zero reports invalid-slot.",
+      "features": [
+        "invalid-slot",
+        "canonical-json",
+        "number-slot",
+        "negative-zero"
+      ],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.4fbf60005f8110de.11.8.1.0:{@0\"0_2}n-0",
+      "envelope": {
+        "integrityHash": "4fbf60005f8110de",
+        "bodyLen": 11,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_2}n-0",
+        "T": "{@0\"0_2}",
+        "K": "n",
+        "G": "",
+        "V": "-0",
+        "payload": "11.8.1.0:{@0\"0_2}n-0"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 2
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "noncanonical-string-slot-json",
+      "kind": "decode",
+      "description": "A string slot with non-canonical escape spelling reports invalid-slot.",
+      "features": ["invalid-slot", "canonical-json", "string-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.ed7e033fa28c65d1.17.8.1.0:{@0'0_8}s\"\\u0061\"",
+      "envelope": {
+        "integrityHash": "ed7e033fa28c65d1",
+        "bodyLen": 17,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0'0_8}s\"\\u0061\"",
+        "T": "{@0'0_8}",
+        "K": "s",
+        "G": "",
+        "V": "\"\\u0061\"",
+        "payload": "17.8.1.0:{@0'0_8}s\"\\u0061\""
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/s",
+            "kind": "invalid-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 8
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "nonfinite-number-slot-json",
+      "kind": "decode",
+      "description": "A non-finite number spelling is not valid canonical JSON and reports invalid-slot.",
+      "features": [
+        "invalid-slot",
+        "canonical-json",
+        "number-slot",
+        "non-finite"
+      ],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.497dd2da2f8ebfea.17.8.1.0:{@0\"0_8}nInfinity",
+      "envelope": {
+        "integrityHash": "497dd2da2f8ebfea",
+        "bodyLen": 17,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_8}nInfinity",
+        "T": "{@0\"0_8}",
+        "K": "n",
+        "G": "",
+        "V": "Infinity",
+        "payload": "17.8.1.0:{@0\"0_8}nInfinity"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 8
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "malformed-number-slot-json",
+      "kind": "decode",
+      "description": "Fully available number slot with malformed JSON reports invalid-slot.",
+      "features": ["invalid-slot", "number-slot", "malformed-json"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.21c5dd5145d6e6c9.11.8.1.0:{@0\"0_2}n01",
+      "envelope": {
+        "integrityHash": "21c5dd5145d6e6c9",
+        "bodyLen": 11,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_2}n01",
+        "T": "{@0\"0_2}",
+        "K": "n",
+        "G": "",
+        "V": "01",
+        "payload": "11.8.1.0:{@0\"0_2}n01"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 2
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "malformed-string-slot-json",
+      "kind": "decode",
+      "description": "Fully available string slot with malformed JSON reports invalid-slot.",
+      "features": ["invalid-slot", "string-slot", "malformed-json"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.dec6f1aa8ec0e448.11.8.1.0:{@0'0_2}s\"x",
+      "envelope": {
+        "integrityHash": "dec6f1aa8ec0e448",
+        "bodyLen": 11,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0'0_2}s\"x",
+        "T": "{@0'0_2}",
+        "K": "s",
+        "G": "",
+        "V": "\"x",
+        "payload": "11.8.1.0:{@0'0_2}s\"x"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/s",
+            "kind": "invalid-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 2
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "zero-length-number-slot",
+      "kind": "decode",
+      "description": "A structurally valid zero-length number slot cannot parse as JSON and reports invalid-slot.",
+      "features": ["invalid-slot", "zero-length-slot", "number-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.817d72a10924ec61.9.8.1.0:{@0\"0_0}n",
+      "envelope": {
+        "integrityHash": "817d72a10924ec61",
+        "bodyLen": 9,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0\"0_0}n",
+        "T": "{@0\"0_0}",
+        "K": "n",
+        "G": "",
+        "V": "",
+        "payload": "9.8.1.0:{@0\"0_0}n"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/n",
+            "kind": "invalid-slot",
+            "slot": "\"0",
+            "expectedType": "number",
+            "expectedLength": 0
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    },
+    {
+      "id": "zero-length-string-slot",
+      "kind": "decode",
+      "description": "A structurally valid zero-length string slot cannot parse as JSON and reports invalid-slot.",
+      "features": ["invalid-slot", "zero-length-slot", "string-slot"],
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.14d016c2653f4bfa.9.8.1.0:{@0'0_0}s",
+      "envelope": {
+        "integrityHash": "14d016c2653f4bfa",
+        "bodyLen": 9,
+        "schemaLen": 8,
+        "keysLen": 1,
+        "guardsLen": 0,
+        "body": "{@0'0_0}s",
+        "T": "{@0'0_0}",
+        "K": "s",
+        "G": "",
+        "V": "",
+        "payload": "9.8.1.0:{@0'0_0}s"
+      },
+      "expectedDecode": {
+        "value": {},
+        "truncated": false,
+        "checksum": true,
+        "holes": [
+          {
+            "path": "/s",
+            "kind": "invalid-slot",
+            "slot": "'0",
+            "expectedType": "string",
+            "expectedLength": 0
+          }
+        ],
+        "slotGuards": {},
+        "guardIssues": []
+      }
+    }
+  ],
+  "rejects": [
+    {
+      "id": "reject-encode-string-root",
+      "kind": "reject-encode",
+      "description": "String roots are outside the HBS3 JSON input domain.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": "not-a-root-container",
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-encode-number-root",
+      "kind": "reject-encode",
+      "description": "Number roots are outside the HBS3 JSON input domain.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": 1,
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-encode-null-root",
+      "kind": "reject-encode",
+      "description": "Null roots are outside the HBS3 JSON input domain.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": null,
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-encode-true-root",
+      "kind": "reject-encode",
+      "description": "Boolean roots are outside the HBS3 JSON input domain.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": true,
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-encode-false-root",
+      "kind": "reject-encode",
+      "description": "Boolean roots are outside the HBS3 JSON input domain.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": false,
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-encode-invalid-key-slash",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain slash characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad/key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-leading-at",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot start with @.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "@bad": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-empty",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot be empty strings.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-leading-space",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot start with a space.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        " bad": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-trailing-space",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot end with a space.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad ": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-consecutive-spaces",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain consecutive spaces.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad  key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-tab",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain tab characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad\tkey": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-newline",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain newline characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad\nkey": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-comma",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain comma characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad,key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-colon",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain colon characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad:key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-open-brace",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain open brace characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad{key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-close-brace",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain close brace characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad}key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-open-bracket",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain open bracket characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad[key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-close-bracket",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain close bracket characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad]key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-quote",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain quote characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad\"key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-backslash",
+      "kind": "reject-encode",
+      "description": "Strict keys cannot contain backslash characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "bad\\key": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-unicode",
+      "kind": "reject-encode",
+      "description": "Strict keys are ASCII-only.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "café": 1
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-nested",
+      "kind": "reject-encode",
+      "description": "Strict key validation applies recursively.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "ok": {
+          "bad/key": 1
+        }
+      },
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-invalid-key-table-row",
+      "kind": "reject-encode",
+      "description": "Strict key validation applies inside table rows.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": [
+        {
+          "ok": 1,
+          "bad/key": 2
+        }
+      ],
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-encode-hmac-integrity-missing-secret",
+      "kind": "reject-encode",
+      "description": "HMAC integrity requires a secret when encoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-encode-hmac-guard-missing-secret",
+      "kind": "reject-encode",
+      "description": "HMAC guards require a secret when encoding scalar slots.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "tagLength": 8
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-encode-hmac-integrity-empty-secret",
+      "kind": "reject-encode",
+      "description": "HMAC integrity requires a non-empty secret when encoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "secret": "",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-encode-hmac-guard-empty-secret",
+      "kind": "reject-encode",
+      "description": "HMAC guards require a non-empty secret when encoding scalar slots.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "secret": "",
+          "tagLength": 8
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-encode-integrity-tag-too-short",
+      "kind": "reject-encode",
+      "description": "Integrity tagLength must be at least two hex characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 1
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-guard-tag-too-short",
+      "kind": "reject-encode",
+      "description": "Guard tagLength must be at least two hex characters.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 1
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-integrity-tag-fractional",
+      "kind": "reject-encode",
+      "description": "Integrity tagLength must be an integer.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 2.5
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-guard-tag-fractional",
+      "kind": "reject-encode",
+      "description": "Guard tagLength must be an integer.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 2.5
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-integrity-tag-too-long",
+      "kind": "reject-encode",
+      "description": "Integrity tagLength cannot exceed the SHA-256 hex digest length.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 65
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-guard-tag-too-long",
+      "kind": "reject-encode",
+      "description": "Guard tagLength cannot exceed the SHA-256 hex digest length.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 65
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-encode-integrity-algorithm-unknown",
+      "kind": "reject-encode",
+      "description": "Unknown integrity algorithms are rejected at runtime.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha512",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "algorithm"
+    },
+    {
+      "id": "reject-encode-guard-algorithm-unknown",
+      "kind": "reject-encode",
+      "description": "Unknown guard algorithms are rejected at runtime.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha512",
+          "tagLength": 6
+        }
+      },
+      "input": {
+        "name": "alice"
+      },
+      "expectedError": "algorithm"
+    },
+    {
+      "id": "reject-decode-invalid-prefix",
+      "kind": "reject-decode",
+      "description": "Only hbs3 prefix is valid.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs4.abc.0.0.0.0:",
+      "expectedError": "header"
+    },
+    {
+      "id": "reject-decode-invalid-header",
+      "kind": "reject-decode",
+      "description": "Header must contain integrity plus four length fields.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.0.0.0:",
+      "expectedError": "header"
+    },
+    {
+      "id": "reject-decode-leading-zero-length",
+      "kind": "reject-decode",
+      "description": "Canonical unsigned decimal length fields forbid leading zeroes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.01.0.0.0:",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-leading-zero-schema-length",
+      "kind": "reject-decode",
+      "description": "Canonical schemaLen forbids leading zeroes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.1.01.0.0:{}",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-leading-zero-keys-length",
+      "kind": "reject-decode",
+      "description": "Canonical keysLen forbids leading zeroes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.1.0.01.0:x",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-leading-zero-guards-length",
+      "kind": "reject-decode",
+      "description": "Canonical guardsLen forbids leading zeroes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.1.0.0.01:x",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-nondigit-body-length",
+      "kind": "reject-decode",
+      "description": "Length fields must contain only decimal digits.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.x.0.0.0:",
+      "expectedError": "header"
+    },
+    {
+      "id": "reject-decode-empty-integrity-field",
+      "kind": "reject-decode",
+      "description": "The integrity field must be present.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3..0.0.0.0:",
+      "expectedError": "header"
+    },
+    {
+      "id": "reject-decode-length-sum-exceeds-body",
+      "kind": "reject-decode",
+      "description": "schemaLen + keysLen + guardsLen cannot exceed bodyLen.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.1.1.1.0:",
+      "expectedError": "exceed"
+    },
+    {
+      "id": "reject-decode-body-too-long",
+      "kind": "reject-decode",
+      "description": "Available body longer than bodyLen is a malformed envelope.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.abc.0.0.0.0:x",
+      "expectedError": "body length"
+    },
+    {
+      "id": "reject-decode-schema-truncated",
+      "kind": "reject-decode",
+      "description": "A body shorter than schemaLen is structurally undecodable.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.dc94fde957cbf825.2.2.0.0:{",
+      "expectedError": "schema"
+    },
+    {
+      "id": "reject-decode-scalar-root-schema",
+      "kind": "reject-decode",
+      "description": "Scalar root schema is not a valid HBS3 root.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.39d86bb9b0e7aff2.1.1.0.0:z",
+      "expectedError": "root"
+    },
+    {
+      "id": "reject-decode-unclosed-object-schema",
+      "kind": "reject-decode",
+      "description": "Unclosed object in schema tape is a hard schema failure.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.c68d1c79d25006d8.5.4.1.0:{@0za",
+      "expectedError": "closed"
+    },
+    {
+      "id": "reject-decode-trailing-schema-data",
+      "kind": "reject-decode",
+      "description": "Trailing schema data after the root value is malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.836f7ba879e1ff48.3.3.0.0:{}z",
+      "expectedError": "trailing"
+    },
+    {
+      "id": "reject-decode-duplicate-key-dictionary-entry",
+      "kind": "reject-decode",
+      "description": "Duplicate key dictionary entries are malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.d1900948284e97fc.5.2.3.0:{}a,a",
+      "expectedError": "duplicate"
+    },
+    {
+      "id": "reject-decode-noncanonical-key-dictionary-order",
+      "kind": "reject-decode",
+      "description": "A complete key dictionary must match canonical first-encounter order.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fa12a9797f30cf0c.11.8.3.0:{@1z@0z}b,a",
+      "expectedError": "canonical"
+    },
+    {
+      "id": "reject-decode-unreferenced-extra-key-dictionary-entry",
+      "kind": "reject-decode",
+      "description": "A complete key dictionary cannot contain unreferenced extra entries.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fd61dfd099e3799c.8.2.6.0:{}unused",
+      "expectedError": "canonical"
+    },
+    {
+      "id": "reject-decode-noncanonical-object-entry-order",
+      "kind": "reject-decode",
+      "description": "Object entries must appear in canonical sorted key order.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.0ea0a07b68b9760a.11.8.3.0:{@1z@0z}a,b",
+      "expectedError": "canonical"
+    },
+    {
+      "id": "reject-decode-noncanonical-table-column-order",
+      "kind": "reject-decode",
+      "description": "Table column descriptors must follow the shared canonical sorted key list.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.7eaf3fb876b2a98c.17.14.3.0:[~2.1:@1z@0z:]a,b",
+      "expectedError": "canonical"
+    },
+    {
+      "id": "reject-decode-malformed-key-dictionary-entry",
+      "kind": "reject-decode",
+      "description": "Key dictionary entries must satisfy strict key grammar.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.6c799e9319ada1f2.9.2.7.0:{}bad/key",
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-decode-leading-comma-key-dictionary",
+      "kind": "reject-decode",
+      "description": "A complete key dictionary cannot start with a comma separator.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.7cad5c3a1ca509fd.4.2.2.0:{},a",
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-decode-trailing-comma-key-dictionary",
+      "kind": "reject-decode",
+      "description": "A complete key dictionary cannot end with a comma separator.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.6b33a0bfd805c548.4.2.2.0:{}a,",
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-decode-consecutive-comma-key-dictionary",
+      "kind": "reject-decode",
+      "description": "A complete key dictionary cannot contain empty entries.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.52ebad2fb490c4c9.6.2.4.0:{}a,,b",
+      "expectedError": "key"
+    },
+    {
+      "id": "reject-decode-malformed-extended-ref",
+      "kind": "reject-decode",
+      "description": "Extended refs must be canonical and at least two base62 digits.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.b13d011a3ddcd145.7.7.0.0:{@{0}z}",
+      "expectedError": "ref"
+    },
+    {
+      "id": "reject-decode-extended-ref-leading-zero",
+      "kind": "reject-decode",
+      "description": "Extended refs must not contain leading zeroes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.69b68cb0551c6f04.9.9.0.0:{@{010}z}",
+      "expectedError": "ref"
+    },
+    {
+      "id": "reject-decode-extended-ref-unsafe-integer",
+      "kind": "reject-decode",
+      "description": "Extended refs must decode to safe integer indexes.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.e1a1d7ccce85c968.16.16.0.0:{@{zzzzzzzzzz}z}",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-header-length-too-many-digits",
+      "kind": "reject-decode",
+      "description": "Header lengths must be bounded before numeric conversion.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.0000000000000000.99999999999999999.0.0.0:",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-invalid-single-char-ref",
+      "kind": "reject-decode",
+      "description": "Single-character refs must be base62.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.0101ff4475ae4079.5.5.0.0:{@!z}",
+      "expectedError": "ref"
+    },
+    {
+      "id": "reject-decode-conflicting-slot-declaration",
+      "kind": "reject-decode",
+      "description": "A reused slot id cannot declare conflicting lengths.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.338f7e737cfa11cd.12.10.0.0:['0_1'0_2]12",
+      "expectedError": "conflicting"
+    },
+    {
+      "id": "reject-decode-missing-slot-length-separator",
+      "kind": "reject-decode",
+      "description": "Scalar slot schema tokens require an underscore length separator.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.8aef7e4e2ea87637.7.6.1.0:{@0'0}s",
+      "expectedError": "separator"
+    },
+    {
+      "id": "reject-decode-noncanonical-slot-length",
+      "kind": "reject-decode",
+      "description": "Schema slot lengths must be canonical unsigned decimal integers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fbbd0ef7a7226b4a.11.9.1.0:{@0\"0_01}n1",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-slot-length-unsafe-integer",
+      "kind": "reject-decode",
+      "description": "Schema slot lengths must fit in a safe integer.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.f45d138808914df9.24.23.1.0:{@0\"0_9007199254740992}n",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-slot-length-too-many-digits",
+      "kind": "reject-decode",
+      "description": "Schema slot lengths must be bounded before numeric conversion.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.516f104eb2028e77.25.24.1.0:{@0\"0_99999999999999999}n",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-trailing-value-stream",
+      "kind": "reject-decode",
+      "description": "Value stream bytes beyond declared slot lengths are malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.c041feb8e221b712.11.8.1.0:{@0\"0_1}n12",
+      "expectedError": "value stream"
+    },
+    {
+      "id": "reject-decode-split-multibyte-utf8-slot-boundary",
+      "kind": "reject-decode",
+      "description": "Slot lengths that split a multi-byte UTF-8 scalar are malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.118d6252a8c4f121.21.14.3.0:{@0'0_1@1'1_3}a,b😀",
+      "expectedError": "UTF-8 boundary"
+    },
+    {
+      "id": "reject-decode-duplicate-object-key-ref",
+      "kind": "reject-decode",
+      "description": "Object schema entries cannot reuse the same key ref.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.ce520f5f790f2ada.9.8.1.0:{@0t@0f}x",
+      "expectedError": "duplicate"
+    },
+    {
+      "id": "reject-decode-table-duplicate-column-key-ref",
+      "kind": "reject-decode",
+      "description": "Table column descriptors cannot reuse the same key ref.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.9466d2aadf4a4bdb.15.14.1.0:[~2.1:@0t@0f:]x",
+      "expectedError": "duplicate"
+    },
+    {
+      "id": "reject-decode-table-key-count-unsafe-integer",
+      "kind": "reject-decode",
+      "description": "Table key count must fit in a safe integer.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.3d923629c642c72c.23.23.0.0:[~9007199254740992.0::]",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-table-row-count-unsafe-integer",
+      "kind": "reject-decode",
+      "description": "Table row count must fit in a safe integer.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.eb91326f35d5c120.27.26.1.0:[~1.9007199254740992:@0t:]x",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-table-column-length-too-many-digits",
+      "kind": "reject-decode",
+      "description": "Fixed table column slot lengths must be bounded before numeric conversion.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.c0b0defa8dfed6ae.29.28.1.0:[~1.0:@0'99999999999999999:]a",
+      "expectedError": "safe integer"
+    },
+    {
+      "id": "reject-decode-table-object-column-scalar-cell",
+      "kind": "reject-decode",
+      "description": "Object table columns must contain object cells.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.e48d17ef9f53f592.17.15.1.0:[~1.1:@0{:\"0_1]x1",
+      "expectedError": "object column"
+    },
+    {
+      "id": "reject-decode-table-array-column-object-cell",
+      "kind": "reject-decode",
+      "description": "Array table columns must contain array cells.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.1037dd3b2036ac26.14.13.1.0:[~1.1:@0[:{}]x",
+      "expectedError": "array column"
+    },
+    {
+      "id": "reject-decode-invalid-schema-marker",
+      "kind": "reject-decode",
+      "description": "Reserved or unknown schema marker is malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.00378f521b7a97bc.1.1.0.0:x",
+      "expectedError": "schema"
+    },
+    {
+      "id": "reject-decode-hmac-integrity-missing-secret",
+      "kind": "reject-decode",
+      "description": "HMAC integrity requires a secret when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.dc94fde957cbf825.2.2.0.0:{}",
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-decode-hmac-guard-missing-secret",
+      "kind": "reject-decode",
+      "description": "HMAC guards require a secret when verifying guards.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "hmac-sha256",
+          "tagLength": 8
+        }
+      },
+      "hbs": "hbs3.204186d490424828.25.8.4.6:{@0'0_7}name63304c\"alice\"",
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-decode-integrity-tag-too-short",
+      "kind": "reject-decode",
+      "description": "Integrity tagLength must be at least two hex characters when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 1
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-guard-tag-too-short",
+      "kind": "reject-decode",
+      "description": "Guard tagLength must be at least two hex characters when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 1
+        }
+      },
+      "hbs": "hbs3.204186d490424828.25.8.4.6:{@0'0_7}name63304c\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-integrity-tag-fractional",
+      "kind": "reject-decode",
+      "description": "Integrity tagLength must be an integer when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 2.5
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-guard-tag-fractional",
+      "kind": "reject-decode",
+      "description": "Guard tagLength must be an integer when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 2.5
+        }
+      },
+      "hbs": "hbs3.204186d490424828.25.8.4.6:{@0'0_7}name63304c\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-integrity-tag-too-long",
+      "kind": "reject-decode",
+      "description": "Integrity tagLength cannot exceed the SHA-256 hex digest length when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 65
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-integrity-field-wrong-length",
+      "kind": "reject-decode",
+      "description": "The integrity field length must match the configured tagLength.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fffffffffffffff.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "integrity"
+    },
+    {
+      "id": "reject-decode-integrity-field-non-hex",
+      "kind": "reject-decode",
+      "description": "The integrity field must be lowercase hexadecimal.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.gggggggggggggggg.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "integrity"
+    },
+    {
+      "id": "reject-decode-guard-tag-too-long",
+      "kind": "reject-decode",
+      "description": "Guard tagLength cannot exceed the SHA-256 hex digest length when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha256",
+          "tagLength": 65
+        }
+      },
+      "hbs": "hbs3.204186d490424828.25.8.4.6:{@0'0_7}name63304c\"alice\"",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-integrity-algorithm-unknown",
+      "kind": "reject-decode",
+      "description": "Unknown integrity algorithms are rejected at runtime when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha512",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:{@0'0_7}name\"alice\"",
+      "expectedError": "algorithm"
+    },
+    {
+      "id": "reject-decode-guard-algorithm-unknown",
+      "kind": "reject-decode",
+      "description": "Unknown guard algorithms are rejected at runtime when decoding.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": {
+          "algorithm": "sha512",
+          "tagLength": 6
+        }
+      },
+      "hbs": "hbs3.204186d490424828.25.8.4.6:{@0'0_7}name63304c\"alice\"",
+      "expectedError": "algorithm"
+    },
+    {
+      "id": "reject-decode-truncated-hmac-integrity-missing-secret",
+      "kind": "reject-decode",
+      "description": "HMAC integrity secret requirements are validated even when the body is truncated.",
+      "options": {
+        "integrity": {
+          "algorithm": "hmac-sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:",
+      "expectedError": "secret"
+    },
+    {
+      "id": "reject-decode-truncated-integrity-tag-too-short",
+      "kind": "reject-decode",
+      "description": "Integrity tagLength requirements are validated even when the body is truncated.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 1
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fec323451ec7e3f1.19.8.4.0:",
+      "expectedError": "tagLength"
+    },
+    {
+      "id": "reject-decode-object-entry-missing-key-ref",
+      "kind": "reject-decode",
+      "description": "Object entries must start with @ key references.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fffa4a7fc6395c7a.3.3.0.0:{z}",
+      "expectedError": "key ref"
+    },
+    {
+      "id": "reject-decode-unclosed-array-schema",
+      "kind": "reject-decode",
+      "description": "Arrays must be closed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.037544d578756a8c.2.2.0.0:[z",
+      "expectedError": "closed"
+    },
+    {
+      "id": "reject-decode-table-key-count-leading-zero",
+      "kind": "reject-decode",
+      "description": "Table column counts must be canonical decimal integers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.d4b509e44182396a.9.9.0.0:[~01.0::]",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-table-row-count-leading-zero",
+      "kind": "reject-decode",
+      "description": "Table row counts must be canonical decimal integers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.93d6eea3bb18c826.9.9.0.0:[~0.01::]",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-table-fixed-column-length-leading-zero",
+      "kind": "reject-decode",
+      "description": "Fixed table column slot lengths must be canonical decimal integers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.fb9fa197bf5f0aba.14.13.1.0:[~1.0:@0'01:]a",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-table-variable-cell-length-leading-zero",
+      "kind": "reject-decode",
+      "description": "Variable table cell slot lengths must be canonical decimal integers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.762c8589a03b8647.20.16.1.0:[~1.1:@0':0_03;]a\"x\"",
+      "expectedError": "non-canonical"
+    },
+    {
+      "id": "reject-decode-table-header-separator-missing",
+      "kind": "reject-decode",
+      "description": "Table schema requires a header separator after row count.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.2f08dd8a32cbb93a.8.8.0.0:[~0.0;:]",
+      "expectedError": "separator"
+    },
+    {
+      "id": "reject-decode-table-body-separator-missing",
+      "kind": "reject-decode",
+      "description": "Table schema requires a body separator after column descriptors.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.3dce692089116d23.7.7.0.0:[~0.0:]",
+      "expectedError": "separator"
+    },
+    {
+      "id": "reject-decode-table-not-closed",
+      "kind": "reject-decode",
+      "description": "Table schemas must be closed by the enclosing array.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.8eb41d6c3a76fd2e.7.7.0.0:[~0.0::",
+      "expectedError": "closed"
+    },
+    {
+      "id": "reject-decode-table-invalid-column-marker",
+      "kind": "reject-decode",
+      "description": "Table column markers must be slot, literal, object, array, or generic node markers.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.3d45a24dfee47f14.12.11.1.0:[~1.0:@0?:]a",
+      "expectedError": "marker"
+    },
+    {
+      "id": "reject-decode-table-variable-cell-missing-terminator",
+      "kind": "reject-decode",
+      "description": "Variable table cell lengths must end with a semicolon.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.d27e9113744aba67.18.14.1.0:[~1.1:@0':0_3]a\"x\"",
+      "expectedError": "terminator"
+    },
+    {
+      "id": "reject-decode-table-row-cell-missing",
+      "kind": "reject-decode",
+      "description": "A table declaring more rows than available cells is malformed.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.81244221b02138cd.19.15.1.0:[~1.2:@0':0_3;]a\"x\"",
+      "expectedError": "ref"
+    },
+    {
+      "id": "reject-decode-table-fixed-cell-missing-ref",
+      "kind": "reject-decode",
+      "description": "A fixed table cell must contain a slot reference.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.5ce39ce162b8bec4.13.12.1.0:[~1.1:@0'3:]a",
+      "expectedError": "ref"
+    },
+    {
+      "id": "reject-decode-nesting-depth-limit",
+      "kind": "reject-decode",
+      "description": "Decoders must reject schema nesting deeper than the implementation limit.",
+      "options": {
+        "integrity": {
+          "algorithm": "sha256",
+          "tagLength": 16
+        },
+        "guards": false
+      },
+      "hbs": "hbs3.63b7f7d0f8589c71.517.517.0.0:[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[z]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]",
+      "expectedError": "nesting"
+    }
+  ]
+}

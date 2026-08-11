@@ -1,0 +1,36 @@
+{
+  "name": "@tunnckocore/hbs",
+  "version": "0.6.0",
+  "description": "HBS3 - compact, text-native, deterministic, encoding with schema, structural recovery, fault-tolerant partial decoding, integrity and checksums, tamper resistance, and streaming-friendly.",
+  "homepage": "https://github.com/tunnckoCore/hbs3-encoding",
+  "license": "Apache-2.0",
+  "author": "tunnckoCore",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tunnckoCore/hbs3-encoding.git",
+    "directory": "packages/hbs"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

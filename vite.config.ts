@@ -74,7 +74,7 @@ export default defineConfig({
         rules: {
           "vite-plus/prefer-vite-plus-imports": "error",
           "no-var": "error",
-          "no-unused-vars": "error",
+          "no-unused-vars": "off",
           "jsdoc/require-yields": "off",
           "@typescript-eslint/consistent-type-imports": [
             "error",

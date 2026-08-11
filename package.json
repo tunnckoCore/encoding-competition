@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@toon-format/cli": "catalog:",
-    "@toon-format/toon": "catalog:"
+    "@toon-format/toon": "catalog:",
+    "gpt-tokenizer": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

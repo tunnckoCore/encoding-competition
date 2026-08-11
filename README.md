@@ -12,6 +12,14 @@ Then I asked GPT-5.6 Sol in Ultra & Fast mode. I told it to be creative, bold, i
 
 TGJ's output is 115 KB. DIA1 is insane at 91.9 KB - it is a full LANGUAGE: an alphabet, a grammar, constructs, phrases, and contextual meanings. It uses emojis as the alphabet, and it can accept another alphabet to produce even smaller results. But it takes 1.9 seconds to encode.
 
+How about real tokens comparison? We used the OpenAI tokenizer.
+
+- HBS3 - 93.5k
+- TOON - 87.2k
+- JSON - 78.2k
+- TGJ - 51.1k
+- DIA1 - 43.8k
+
 ---
 
 ## The Idea

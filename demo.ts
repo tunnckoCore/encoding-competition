@@ -1,5 +1,5 @@
 import { encode as encodeToon, decode as decodeToon } from "@toon-format/toon";
-
+import { encode as encodeGPT, decode as decodeGPT } from "gpt-tokenizer";
 import fixture from "./fixture.json" with { type: "json" };
 import canonFixture from "./fixture-canonicalized.json" with { type: "json" };
 
@@ -46,8 +46,8 @@ if (JSON.stringify(decodeToon(toon)) !== json) {
 
 const size = (value: string): number => new TextEncoder().encode(value).length;
 
-console.log("toon size:", size(toon));
-console.log("json size:", size(json));
-console.log("hbs3 size:", size(hbs3));
-console.log("tgj size:", size(tgj));
-console.log("dia1 size:", size(dia1));
+console.log("toon size:", size(toon), "tokens:", encodeGPT(toon).length);
+console.log("json size:", size(json), "tokens:", encodeGPT(json).length);
+console.log("hbs3 size:", size(hbs3), "tokens:", encodeGPT(hbs3).length);
+console.log("tgj size:", size(tgj), "tokens:", encodeGPT(tgj).length);
+console.log("dia1 size:", size(dia1), "tokens:", encodeGPT(dia1).length);

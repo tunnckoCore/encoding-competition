@@ -1,4 +1,4 @@
-# Claude VS. Codex
+# Claude VS. Codex/ChatGPT/GPT-5.6 Sol
 
 The ultimate competition. Who will design and implement the best encoding/decoding/compacting text format.
 
@@ -8,7 +8,7 @@ I started few months ago with HBS3, it's included here too and there is spec, co
 
 The raw minified JSON fixture is 271kb. HBS3 outputs 191kb.
 
-Then i asked GPT-5.6 Ultra Fast mode. Told it to be creative, bold, innovative, inventor, and linked my HBS3 to see what's possible. It designed TGJ and DIA1.
+Then i asked GPT-5.6 Sol Ultra Fast mode. Told it to be creative, bold, innovative, inventor, and linked my HBS3 to see what's possible. It designed TGJ and DIA1.
 
 The TGJ size is 115kb. The DIA1 is insane, at 91.9kb - it is a full LANGUAGE - an alphabet, a grammer, constructs, phrases, contextual meanings. And it uses emojis as the alphabet. And it can accept another alphabet and output even smaller results. But it takes 1.9s to encode.
 

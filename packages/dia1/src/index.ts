@@ -2,12 +2,13 @@ import {
   directTokens,
   isTokenLiteral,
   simpleTokenSuffixes,
+  stringDelimiter,
+  stringEscape,
   tokenBanks,
   tokenByteLength,
   tokenCapacity,
   tokenFor,
   tokenIndex,
-  tokenLiteralPattern,
   tokenPrefix,
 } from "./alphabet.ts";
 
@@ -19,6 +20,7 @@ const MAX_DEPTH = 128;
 const MAX_DECODE_NODES = 1_000_000;
 const MAX_SPLICE_BYTES = 512;
 const MIN_WORD_NET_SAVINGS = 14;
+const FRAME_ESCAPE = "~";
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
@@ -1106,7 +1108,7 @@ function encodeString(value: string, dialect: Dialect): Encoded {
   }
 
   const wordUses: number[] = [];
-  let wire = '"';
+  let wire = stringDelimiter;
   for (const piece of pieces) {
     if (piece.kind === "word") {
       wire += tokenFor(piece.index);
@@ -1115,7 +1117,7 @@ function encodeString(value: string, dialect: Dialect): Encoded {
       wire += escapeRawStringContent(piece.value);
     }
   }
-  wire += '"';
+  wire += stringDelimiter;
 
   const encoded: Encoded = {
     exactUses: [],
@@ -1527,7 +1529,7 @@ function decodeValue(
   }
 
   const marker = reader.peekAscii();
-  if (marker === '"') {
+  if (marker === stringDelimiter) {
     const value = reader.readQuotedString(tables.words, budget.bytesRemaining);
     chargeScalar(budget, value);
     if (scope) {
@@ -1752,29 +1754,126 @@ function readScopeScalar(
 }
 
 function quoteRawString(value: string): string {
-  return '"' + escapeRawStringContent(value) + '"';
+  return stringDelimiter + escapeRawStringContent(value) + stringDelimiter;
 }
 
 function escapeRawStringContent(value: string): string {
-  const escaped = JSON.stringify(value).slice(1, -1);
+  let escaped = "";
 
-  return escaped.replace(tokenLiteralPattern, "\\$&");
+  for (const character of value) {
+    if (isTokenLiteral(character)) {
+      escaped += stringEscape + character;
+      continue;
+    }
+    if (character.length > 1) {
+      escaped += character;
+      continue;
+    }
+
+    const code = character.charCodeAt(0);
+    if (character === "\\") {
+      escaped += stringEscape + "b";
+    } else if (character === '"') {
+      escaped += stringEscape + "d";
+    } else if (character === "\b") {
+      escaped += stringEscape + "h";
+    } else if (character === "\t") {
+      escaped += stringEscape + "t";
+    } else if (character === "\n") {
+      escaped += stringEscape + "n";
+    } else if (character === "\f") {
+      escaped += stringEscape + "f";
+    } else if (character === "\r") {
+      escaped += stringEscape + "r";
+    } else if (code < 0x20 || (code >= 0xd800 && code <= 0xdfff)) {
+      escaped += stringEscape + "u" + hexCodeUnit(code);
+    } else {
+      escaped += character;
+    }
+  }
+
+  return escaped;
 }
 
 function stringFrame(value: string): string {
-  return rawFrame(JSON.stringify(value));
+  return rawFrame(JSON.stringify(value).slice(1, -1));
 }
 
 function stringFrameBytes(value: string): number {
-  return rawFrameBytes(JSON.stringify(value));
+  return rawFrameBytes(JSON.stringify(value).slice(1, -1));
 }
 
 function rawFrame(value: string): string {
-  return String(utf8Length(value)) + ":" + value;
+  const escaped = escapeFrameContent(value);
+
+  return String(utf8Length(escaped)) + ":" + escaped;
 }
 
 function rawFrameBytes(value: string): number {
-  return String(utf8Length(value)).length + 1 + utf8Length(value);
+  const bytes = utf8Length(escapeFrameContent(value));
+
+  return String(bytes).length + 1 + bytes;
+}
+
+function escapeFrameContent(value: string): string {
+  let escaped = "";
+
+  for (const character of value) {
+    if (character === '"') {
+      escaped += stringDelimiter;
+    } else if (character === stringDelimiter) {
+      escaped += FRAME_ESCAPE + "a";
+    } else if (character === FRAME_ESCAPE) {
+      escaped += FRAME_ESCAPE + FRAME_ESCAPE;
+    } else if (character === "\\") {
+      escaped += FRAME_ESCAPE + "b";
+    } else {
+      escaped += character;
+    }
+  }
+
+  return escaped;
+}
+
+function unescapeFrameContent(value: string): string {
+  let decoded = "";
+
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index]!;
+    if (character === stringDelimiter) {
+      decoded += '"';
+      continue;
+    }
+    if (character !== FRAME_ESCAPE) {
+      if (
+        character === '"' ||
+        character === "\\" ||
+        character.charCodeAt(0) < 0x20
+      ) {
+        throw new Error("dialect frame contains an unsafe character");
+      }
+
+      decoded += character;
+      continue;
+    }
+
+    const escape = value[++index];
+    if (escape === "a") {
+      decoded += stringDelimiter;
+    } else if (escape === "b") {
+      decoded += "\\";
+    } else if (escape === FRAME_ESCAPE) {
+      decoded += FRAME_ESCAPE;
+    } else {
+      throw new Error("dialect frame contains an unknown escape");
+    }
+  }
+
+  return decoded;
+}
+
+function hexCodeUnit(code: number): string {
+  return code.toString(16).padStart(4, "0");
 }
 
 function buildTrie(words: string[]): TrieNode {
@@ -2098,7 +2197,7 @@ class ByteReader {
   }
 
   readFramedString(): string {
-    const value = JSON.parse(this.readRawString()) as unknown;
+    const value = JSON.parse('"' + this.readRawString() + '"') as unknown;
     if (typeof value !== "string") {
       throw new Error("dialect string frame does not contain a string");
     }
@@ -2120,14 +2219,13 @@ class ByteReader {
     );
     this.cursor += length;
 
-    return value;
+    return unescapeFrameContent(value);
   }
 
   readQuotedString(words: string[], maxDecodedBytes: number): string {
-    this.expectAscii('"');
+    this.expectAscii(stringDelimiter);
 
     let decodedBytes = 0;
-    let escaped = "";
     let value = "";
 
     const append = (piece: string): void => {
@@ -2138,55 +2236,60 @@ class ByteReader {
 
       value += piece;
     };
-    const flush = (): void => {
-      if (!escaped) {
-        return;
-      }
-
-      append(JSON.parse('"' + escaped + '"') as string);
-      escaped = "";
-    };
 
     while (true) {
       const marker = this.peekAscii();
-      if (marker === '"') {
+      if (marker === stringDelimiter) {
         this.readAscii();
-        flush();
 
         return value;
       }
       if (this.startsToken()) {
-        flush();
         const index = this.readToken(words.length);
         append(words[index]!);
         continue;
       }
-      if (marker === "\\") {
+      if (marker === stringEscape) {
         this.readAscii();
         const escape = this.readAscii();
         if (isTokenLiteral(escape)) {
-          flush();
           append(escape);
           continue;
         }
 
-        escaped += "\\" + escape;
-
-        if (escape === "u") {
+        if (escape === "b") {
+          append("\\");
+        } else if (escape === "d") {
+          append('"');
+        } else if (escape === "h") {
+          append("\b");
+        } else if (escape === "t") {
+          append("\t");
+        } else if (escape === "n") {
+          append("\n");
+        } else if (escape === "f") {
+          append("\f");
+        } else if (escape === "r") {
+          append("\r");
+        } else if (escape === "u") {
+          let digits = "";
           for (let index = 0; index < 4; index += 1) {
             const digit = this.readAscii();
             if (!/[0-9A-Fa-f]/.test(digit)) {
               throw new Error("dialect string contains a malformed escape");
             }
 
-            escaped += digit;
+            digits += digit;
           }
+          append(String.fromCharCode(Number.parseInt(digits, 16)));
+        } else {
+          throw new Error("dialect string contains an unknown escape");
         }
 
         continue;
       }
 
-      escaped += this.readCodePoint();
+      append(this.readCodePoint());
     }
   }
 

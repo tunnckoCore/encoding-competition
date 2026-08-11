@@ -1,6 +1,8 @@
 export const tokenPrefix = "*";
-export const directTokens = ">+()!'I<NXW$H_UBq~|;^OD%LF#VEQ?JMGR&YK";
+export const directTokens = ">+()!,I<NXW$H_UBq~|;^OD%LF#VEQ?JMGR&YK";
 export const tokenBanks = "DEIBOPRH";
+export const stringDelimiter = "'";
+export const stringEscape = "`";
 
 const preferredSuffixes =
   "!$&()f-:/.=>@ACKMNST[_abcd,ghijklmnpqrstuvwxyz" +
@@ -27,17 +29,12 @@ export const tokenIndex = new Map(
   tokenCodes.map((token, index) => [token, index]),
 );
 
-const tokenLiterals = tokenPrefix + directTokens;
+const tokenLiterals =
+  tokenPrefix + directTokens + stringDelimiter + stringEscape;
 const tokenLiteralCodes = new Uint8Array(128);
 for (const character of tokenLiterals) {
   tokenLiteralCodes[character.charCodeAt(0)] = 1;
 }
-
-const tokenLiteralClass = tokenLiterals.replace(
-  /[\\\]\-^]/g,
-  (character) => "\\" + character,
-);
-export const tokenLiteralPattern = new RegExp(`[${tokenLiteralClass}]`, "g");
 
 export function tokenFor(index: number): string {
   if (!Number.isInteger(index) || index < 0 || index >= tokenCapacity) {

@@ -1,4 +1,5 @@
 import {
+  compactTokenCapacity,
   directTokens,
   isTokenLiteral,
   simpleTokenSuffixes,
@@ -8,7 +9,7 @@ import {
   tokenByteLength,
   tokenCapacity,
   tokenFor,
-  tokenIndex,
+  tokenIndexFor,
   tokenPrefix,
 } from "./alphabet.ts";
 import { decodeDia2Envelope, encodeDia2Envelope } from "./dia2.ts";
@@ -262,7 +263,7 @@ function resolveOptions(options: DialectOptions): ResolvedOptions {
   const dia2 = options.dia2 ?? false;
   const minWordBytes = options.minWordBytes ?? 4;
   const minWordOccurrences = options.minWordOccurrences ?? 3;
-  const maxWords = options.maxWords ?? tokenCapacity;
+  const maxWords = options.maxWords ?? compactTokenCapacity;
   const maxValues = options.maxValues ?? 768;
   const maxShapes = options.maxShapes ?? 256;
 
@@ -1667,7 +1668,11 @@ function readStringDefinition(
       );
     }
   } else {
-    value = JSON.parse('"' + frame.value + '"') as unknown;
+    try {
+      value = JSON.parse('"' + frame.value + '"') as unknown;
+    } catch {
+      throw new Error("dialect " + name + " definition is malformed");
+    }
   }
 
   if (typeof value !== "string") {
@@ -1873,7 +1878,7 @@ function decodeArray(
     if (values.length > 0) {
       chargeBytes(budget, 1);
     }
-    values.push(decodeValue(reader, tables, budget, scope, depth + 1));
+    values.push(decodeValue(reader, tables, budget, scope, depth));
   }
   reader.readAscii();
 
@@ -1895,7 +1900,7 @@ function decodeObject(
     const keyIndex = reader.readToken(tables.keys.length);
     const key = tables.keys[keyIndex]!;
     chargeMember(budget, key, Object.keys(value).length);
-    const child = decodeValue(reader, tables, budget, localScope, depth + 1);
+    const child = decodeValue(reader, tables, budget, localScope, depth);
     defineJsonProperty(value, key, child);
   }
   reader.readAscii();
@@ -1921,7 +1926,7 @@ function decodeShape(
     let child: JsonValue;
 
     if (field.kind === "dynamic") {
-      child = decodeValue(reader, tables, budget, scope, depth + 1);
+      child = decodeValue(reader, tables, budget, scope, depth);
     } else if (field.kind === "constant") {
       child = parseJsonValue(field.json);
       chargeTree(budget, child);
@@ -2533,7 +2538,9 @@ class ByteReader {
     if (first === tokenPrefix) {
       const suffix = this.readAscii();
       token += suffix;
-      if (tokenBanks.includes(suffix)) {
+      if (suffix === tokenPrefix) {
+        token += this.readAscii() + this.readAscii() + this.readAscii();
+      } else if (tokenBanks.includes(suffix)) {
         token += this.readAscii();
       } else if (!simpleTokenSuffixes.includes(suffix)) {
         throw new Error("dialect payload contains an unknown token suffix");
@@ -2542,7 +2549,7 @@ class ByteReader {
       throw new Error("dialect payload contains an unknown token root");
     }
 
-    const index = tokenIndex.get(token);
+    const index = tokenIndexFor(token);
     if (index === undefined) {
       throw new Error("dialect payload contains an unknown token");
     }

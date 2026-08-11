@@ -22,7 +22,7 @@ const MAX_SPLICE_BYTES = 512;
 const MIN_WORD_NET_SAVINGS = 14;
 const FRAME_ESCAPE = "~";
 const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder("utf-8", { fatal: true });
+const textDecoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
 const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export type DialectOptions = {

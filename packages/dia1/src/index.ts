@@ -383,11 +383,20 @@ function inferLocalRelations(
       }
 
       const position = target.indexOf(candidate);
+      const prefix = target.slice(0, position);
+      const suffix = target.slice(position + candidate.length);
+      if (
+        utf8Length(prefix) > MAX_ENTRY_BYTES ||
+        utf8Length(suffix) > MAX_ENTRY_BYTES
+      ) {
+        continue;
+      }
+
       const relation = {
         kind: "concat" as const,
-        prefix: target.slice(0, position),
+        prefix,
         source,
-        suffix: target.slice(position + candidate.length),
+        suffix,
       };
       if (
         !best ||
@@ -702,6 +711,7 @@ function inferShapeConstants(group: ShapeGroup): ShapeField[] {
     const key = group.keys[index]!;
     const first = JSON.stringify(group.records[0]![key]!);
     if (
+      utf8Length(first) <= MAX_ENTRY_BYTES &&
       group.records.every((record) => JSON.stringify(record[key]!) === first)
     ) {
       const definitionBytes = 1 + rawFrameBytes(first);

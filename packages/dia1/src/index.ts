@@ -93,6 +93,7 @@ type TrieNode = {
 
 type Dialect = {
   exactIndex: Map<string, number>;
+  exactLimit: number;
   exactValues: string[];
   keyIndex: Map<string, number>;
   keys: string[];
@@ -139,6 +140,11 @@ type DecodeTables = {
 type DecodeBudget = {
   bytesRemaining: number;
   nodesRemaining: number;
+};
+
+type DefinitionFrame = {
+  encoded: boolean;
+  value: string;
 };
 
 type Header = {
@@ -192,10 +198,16 @@ export function decodeDialect(encoded: string): unknown {
   }
 
   const reader = new ByteReader(textEncoder.encode(header.payload));
-  const keys = readStringTable(reader, header.keyCount, "key");
-  const words = readStringTable(reader, header.wordCount, "word");
-  const exactValues = readExactTable(reader, header.exactCount);
-  const shapes = readShapeTable(reader, header.shapeCount, keys);
+  const keys = readKeyTable(reader, header.keyCount);
+  const words = readWordTable(reader, header.wordCount);
+  const exactValues = readExactTable(reader, header.exactCount, keys, words);
+  const shapes = readShapeTable(
+    reader,
+    header.shapeCount,
+    keys,
+    words,
+    exactValues,
+  );
   const tables = { exactValues, keys, shapes, words };
   const budget: DecodeBudget = {
     bytesRemaining: header.expandedBytes,
@@ -736,6 +748,7 @@ function createDialect(
 ): Dialect {
   return {
     exactIndex: indexStrings(exactValues),
+    exactLimit: exactValues.length,
     exactValues,
     keyIndex: indexStrings(keys),
     keys,
@@ -787,7 +800,7 @@ function encodeValue(
   }
 
   const json = JSON.stringify(value);
-  const exactIndex = allowExact ? dialect.exactIndex.get(json) : undefined;
+  const exactIndex = allowExact ? findExactIndex(dialect, json) : undefined;
   if (exactIndex !== undefined) {
     return encodedToken(exactIndex);
   }
@@ -830,7 +843,7 @@ function encodeScalar(
 
 function encodeScalarNormally(value: JsonScalar, dialect: Dialect): Encoded {
   const json = JSON.stringify(value);
-  const exactIndex = dialect.exactIndex.get(json);
+  const exactIndex = findExactIndex(dialect, json);
   if (exactIndex !== undefined) {
     return encodedToken(exactIndex);
   }
@@ -1044,7 +1057,11 @@ function findAsciiSplice(
   return undefined;
 }
 
-function encodeString(value: string, dialect: Dialect): Encoded {
+function encodeString(
+  value: string,
+  dialect: Dialect,
+  wordLimit = dialect.words.length,
+): Encoded {
   const raw = emptyEncoded(quoteRawString(value));
   if (dialect.words.length === 0 || value.length === 0) {
     return raw;
@@ -1071,6 +1088,9 @@ function encodeString(value: string, dialect: Dialect): Encoded {
         break;
       }
       if (node.index === undefined) {
+        continue;
+      }
+      if (node.index >= wordLimit) {
         continue;
       }
 
@@ -1161,7 +1181,7 @@ function encodeArray(
       signatures.every((signature) => signature === signatures[0]) &&
       records.every(
         (record) =>
-          dialect.exactIndex.get(JSON.stringify(record)) === undefined,
+          findExactIndex(dialect, JSON.stringify(record)) === undefined,
       )
     ) {
       const shape = dialect.shapes[shapeIndex]!;
@@ -1329,49 +1349,105 @@ function sameDialectSize(left: Dialect, right: Dialect): boolean {
 
 function serializeTables(dialect: Dialect): string {
   let output = "";
+  const keyDialect = createDialect([], dialect.keys, [], []);
+  const wordDialect = createDialect([], dialect.words, [], []);
+  const definitionDialect = createDialect(
+    dialect.keys,
+    dialect.words,
+    dialect.exactValues,
+    [],
+  );
 
-  for (const key of dialect.keys) {
-    output += stringFrame(key);
-  }
-  for (const word of dialect.words) {
-    output += stringFrame(word);
-  }
-  for (const value of dialect.exactValues) {
-    output += rawFrame(value);
-  }
+  dialect.keys.forEach((key, index) => {
+    output += chooseDefinitionFrame(
+      stringFrame(key),
+      encodeString(key, keyDialect, index).wire,
+    );
+  });
+  dialect.words.forEach((word, index) => {
+    output += chooseDefinitionFrame(
+      stringFrame(word),
+      encodeString(word, wordDialect, index).wire,
+    );
+  });
+  dialect.exactValues.forEach((json, index) => {
+    const earlierValues = { ...definitionDialect, exactLimit: index };
+    const encoded = encodeValue(
+      parseJsonValue(json),
+      earlierValues,
+      undefined,
+      false,
+      0,
+    );
+    output += chooseDefinitionFrame(rawFrame(json), encoded.wire);
+  });
+
   for (const shape of dialect.shapes) {
-    output += String(shape.fields.length) + ":";
-
-    shape.fields.forEach((field, index) => {
-      const keyIndex = dialect.keyIndex.get(shape.keys[index]!);
-      if (keyIndex === undefined) {
-        throw new Error("dialect shape key is missing from the key table");
-      }
-
-      const marker =
-        field.kind === "dynamic"
-          ? "d"
-          : field.kind === "constant"
-            ? "c"
-            : field.kind === "copy"
-              ? "r"
-              : "p";
-      output += tokenFor(keyIndex) + marker;
-      if (field.kind === "constant") {
-        output += rawFrame(field.json);
-      } else if (field.kind === "copy") {
-        output += String(field.source) + ":";
-      } else if (field.kind === "concat") {
-        output +=
-          String(field.source) +
-          ":" +
-          stringFrame(field.prefix) +
-          stringFrame(field.suffix);
-      }
-    });
+    output += serializeShape(shape, dialect, definitionDialect);
   }
 
   return output;
+}
+
+function serializeShape(
+  shape: Shape,
+  dialect: Dialect,
+  definitionDialect: Dialect,
+): string {
+  let output = String(shape.fields.length) + ":";
+
+  shape.fields.forEach((field, index) => {
+    const keyIndex = dialect.keyIndex.get(shape.keys[index]!);
+    if (keyIndex === undefined) {
+      throw new Error("dialect shape key is missing from the key table");
+    }
+
+    const marker =
+      field.kind === "dynamic"
+        ? "d"
+        : field.kind === "constant"
+          ? "c"
+          : field.kind === "copy"
+            ? "r"
+            : "p";
+    output += tokenFor(keyIndex) + marker;
+    if (field.kind === "constant") {
+      const encoded = encodeValue(
+        parseJsonValue(field.json),
+        definitionDialect,
+        undefined,
+        true,
+        0,
+      );
+      output += chooseDefinitionFrame(rawFrame(field.json), encoded.wire);
+    } else if (field.kind === "copy") {
+      output += String(field.source) + ":";
+    } else if (field.kind === "concat") {
+      output +=
+        String(field.source) +
+        ":" +
+        chooseDefinitionFrame(
+          stringFrame(field.prefix),
+          encodeString(field.prefix, definitionDialect).wire,
+        ) +
+        chooseDefinitionFrame(
+          stringFrame(field.suffix),
+          encodeString(field.suffix, definitionDialect).wire,
+        );
+    }
+  });
+
+  return output;
+}
+
+function chooseDefinitionFrame(raw: string, encoded: string): string {
+  const candidate = encodedFrame(encoded);
+
+  return utf8Length(candidate) < utf8Length(raw) ? candidate : raw;
+}
+
+function encodedFrame(value: string): string {
+  return String(utf8Length(value)) + ";" + value;
 }
 
 function parseHeader(encoded: string): Header {
@@ -1401,60 +1477,52 @@ function parseHeader(encoded: string): Header {
   };
 }
 
-function readStringTable(
-  reader: ByteReader,
-  count: number,
-  name: string,
-): string[] {
-  const entries: string[] = [];
+function readKeyTable(reader: ByteReader, count: number): string[] {
+  const keys: string[] = [];
 
   for (let index = 0; index < count; index += 1) {
-    const value = reader.readFramedString();
-    if (utf8Length(value) > MAX_ENTRY_BYTES && name !== "key") {
-      throw new Error("dialect " + name + " entry exceeds the decoder limit");
-    }
-
-    entries.push(value);
+    keys.push(readStringDefinition(reader, keys, "key", MAX_EXPANDED_BYTES));
   }
 
-  return entries;
+  return keys;
 }
 
-function readRawTable(
-  reader: ByteReader,
-  count: number,
-  name: string,
-): string[] {
-  const entries: string[] = [];
+function readWordTable(reader: ByteReader, count: number): string[] {
+  const words: string[] = [];
 
   for (let index = 0; index < count; index += 1) {
-    const value = reader.readRawString();
-    if (utf8Length(value) > MAX_ENTRY_BYTES && name !== "key") {
-      throw new Error("dialect " + name + " entry exceeds the decoder limit");
-    }
-
-    entries.push(value);
+    words.push(readStringDefinition(reader, words, "word"));
   }
 
-  return entries;
+  return words;
 }
 
-function readExactTable(reader: ByteReader, count: number): string[] {
-  const entries = readRawTable(reader, count, "exact value");
+function readExactTable(
+  reader: ByteReader,
+  count: number,
+  keys: string[],
+  words: string[],
+): string[] {
+  const exactValues: string[] = [];
 
-  for (const entry of entries) {
-    parseJsonValue(entry);
+  for (let index = 0; index < count; index += 1) {
+    const tables = { exactValues, keys, shapes: [], words };
+    const value = readValueDefinition(reader, tables, "exact value");
+    exactValues.push(JSON.stringify(value));
   }
 
-  return entries;
+  return exactValues;
 }
 
 function readShapeTable(
   reader: ByteReader,
   count: number,
   keys: string[],
+  words: string[],
+  exactValues: string[],
 ): DecodedShape[] {
   const shapes: DecodedShape[] = [];
+  const definitionTables = { exactValues, keys, shapes: [], words };
 
   for (let shapeIndex = 0; shapeIndex < count; shapeIndex += 1) {
     const fieldCount = reader.readUnsigned();
@@ -1473,8 +1541,12 @@ function readShapeTable(
       if (mode === "d") {
         fields.push({ kind: "dynamic" });
       } else if (mode === "c") {
-        const json = reader.readRawString();
-        parseJsonValue(json);
+        const value = readValueDefinition(
+          reader,
+          definitionTables,
+          "shape constant",
+        );
+        const json = JSON.stringify(value);
         fields.push({ json, kind: "constant" });
       } else if (mode === "r") {
         const source = reader.readUnsigned();
@@ -1491,9 +1563,9 @@ function readShapeTable(
 
         fields.push({
           kind: "concat",
-          prefix: reader.readFramedString(),
+          prefix: readStringDefinition(reader, words, "shape prefix"),
           source,
-          suffix: reader.readFramedString(),
+          suffix: readStringDefinition(reader, words, "shape suffix"),
         });
       } else {
         throw new Error("dialect shape contains an unknown field mode");
@@ -1504,6 +1576,71 @@ function readShapeTable(
   }
 
   return shapes;
+}
+
+function readStringDefinition(
+  reader: ByteReader,
+  words: string[],
+  name: string,
+  maximumBytes = MAX_ENTRY_BYTES,
+): string {
+  const frame = reader.readDefinitionFrame();
+  let value: unknown;
+
+  if (frame.encoded) {
+    const entryReader = new ByteReader(textEncoder.encode(frame.value));
+    value = entryReader.readQuotedString(words, maximumBytes + 2);
+    if (!entryReader.done()) {
+      throw new Error(
+        "dialect " + name + " definition contains trailing bytes",
+      );
+    }
+  } else {
+    value = JSON.parse('"' + frame.value + '"') as unknown;
+  }
+
+  if (typeof value !== "string") {
+    throw new Error("dialect " + name + " definition is not a string");
+  }
+  if (utf8Length(value) > maximumBytes) {
+    throw new Error("dialect " + name + " entry exceeds the decoder limit");
+  }
+
+  return value;
+}
+
+function readValueDefinition(
+  reader: ByteReader,
+  tables: DecodeTables,
+  name: string,
+): JsonValue {
+  const frame = reader.readDefinitionFrame();
+  const value = frame.encoded
+    ? decodeDefinitionValue(frame.value, tables, name)
+    : parseJsonValue(frame.value);
+  if (utf8Length(JSON.stringify(value)) > MAX_ENTRY_BYTES) {
+    throw new Error("dialect " + name + " entry exceeds the decoder limit");
+  }
+
+  return value;
+}
+
+function decodeDefinitionValue(
+  encoded: string,
+  tables: DecodeTables,
+  name: string,
+): JsonValue {
+  const reader = new ByteReader(textEncoder.encode(encoded));
+  const budget: DecodeBudget = {
+    bytesRemaining: MAX_ENTRY_BYTES,
+    nodesRemaining: Math.min(MAX_ENTRY_BYTES, MAX_DECODE_NODES),
+  };
+  const value = decodeValue(reader, tables, budget, undefined, 0);
+  if (!reader.done()) {
+    throw new Error("dialect " + name + " definition contains trailing bytes");
+  }
+
+  return value;
 }
 
 function decodeValue(
@@ -1902,6 +2039,12 @@ function indexStrings(values: string[]): Map<string, number> {
   return new Map(values.map((value, index) => [value, index]));
 }
 
+function findExactIndex(dialect: Dialect, json: string): number | undefined {
+  const index = dialect.exactIndex.get(json);
+
+  return index !== undefined && index < dialect.exactLimit ? index : undefined;
+}
+
 function compareCandidates(left: Candidate, right: Candidate): number {
   return (
     right.score - left.score ||
@@ -2196,17 +2339,33 @@ class ByteReader {
     return value;
   }
 
-  readFramedString(): string {
-    const value = JSON.parse('"' + this.readRawString() + '"') as unknown;
-    if (typeof value !== "string") {
-      throw new Error("dialect string frame does not contain a string");
+  readDefinitionFrame(): DefinitionFrame {
+    const start = this.cursor;
+
+    while (true) {
+      const byte = this.bytes[this.cursor];
+      if (byte === 58 || byte === 59) {
+        break;
+      }
+      if (byte === undefined || byte < 48 || byte > 57) {
+        throw new Error("dialect payload contains a malformed frame length");
+      }
+
+      this.cursor += 1;
     }
 
-    return value;
-  }
+    if (this.cursor === start) {
+      throw new Error("dialect payload contains an empty frame length");
+    }
 
-  readRawString(): string {
-    const length = this.readUnsigned();
+    const length = Number(
+      textDecoder.decode(this.bytes.subarray(start, this.cursor)),
+    );
+    const encoded = this.bytes[this.cursor] === 59;
+    this.cursor += 1;
+    if (!Number.isSafeInteger(length)) {
+      throw new Error("dialect frame length exceeds the safe integer range");
+    }
     if (
       length > MAX_EXPANDED_BYTES ||
       this.cursor + length > this.bytes.length
@@ -2219,7 +2378,10 @@ class ByteReader {
     );
     this.cursor += length;
 
-    return unescapeFrameContent(value);
+    return {
+      encoded,
+      value: encoded ? value : unescapeFrameContent(value),
+    };
   }
 
   readQuotedString(words: string[], maxDecodedBytes: number): string {

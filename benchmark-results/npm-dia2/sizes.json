@@ -1,0 +1,35 @@
+{
+  "benchmark": "npm JSON DIA1 and DIA2 compression",
+  "runtime": "Bun 1.3.14",
+  "gzipLevel": 9,
+  "brotliQuality": 11,
+  "brotliMode": "text",
+  "rows": [
+    {
+      "case": "43kb",
+      "objects": 40,
+      "originalBytes": 43851,
+      "originalGzipBytes": 7946,
+      "originalBrotliBytes": 6513,
+      "dia1Bytes": 15692,
+      "dia2Bytes": 14297,
+      "dia1GzipBytes": 7740,
+      "dia2GzipBytes": 7943,
+      "dia1BrotliBytes": 6544,
+      "dia2BrotliBytes": 6723
+    },
+    {
+      "case": "271kb",
+      "objects": 250,
+      "originalBytes": 271898,
+      "originalGzipBytes": 43475,
+      "originalBrotliBytes": 33062,
+      "dia1Bytes": 79905,
+      "dia2Bytes": 75203,
+      "dia1GzipBytes": 35584,
+      "dia2GzipBytes": 36060,
+      "dia1BrotliBytes": 30569,
+      "dia2BrotliBytes": 31125
+    }
+  ]
+}

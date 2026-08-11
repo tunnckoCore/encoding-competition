@@ -1,18 +1,32 @@
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+*.log*
 
 node_modules
 dist
 dist-ssr
 *.local
 
+*.env*
+*.env*.local
+*.env.*.*
+!.env.example
+
+.dev.vars*
+.dev.vars.*local
+.dev.local
+!.dev.vars.example
+
+target
+cache
+.repos
+.cache
+.wrangler
+
 # Editor directories and files
+.zed/*
+!.zed/settings.json
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json

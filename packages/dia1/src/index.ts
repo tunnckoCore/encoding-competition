@@ -340,7 +340,7 @@ function inferLocalRelations(
       if (
         isJsonScalar(target) &&
         isJsonScalar(candidate) &&
-        JSON.stringify(target) === JSON.stringify(candidate)
+        target === candidate
       ) {
         return { kind: "copy", source };
       }
@@ -853,11 +853,10 @@ function encodeScalarCopy(
   value: JsonScalar,
   scope: JsonScalar[],
 ): Encoded | undefined {
-  const json = JSON.stringify(value);
   const start = Math.max(0, scope.length - BASE62.length);
 
   for (let index = scope.length - 1; index >= start; index -= 1) {
-    if (JSON.stringify(scope[index]) === json) {
+    if (scope[index] === value) {
       const distance = scope.length - 1 - index;
 
       return emptyEncoded("=" + BASE62[distance]!);
@@ -872,20 +871,34 @@ function encodeScalarSplice(
   scope: JsonScalar[],
   dialect: Dialect,
 ): Encoded | undefined {
-  if (utf8Length(target) > MAX_SPLICE_BYTES) {
+  const targetBytes = utf8Length(target);
+  if (targetBytes > MAX_SPLICE_BYTES) {
     return undefined;
   }
 
   let best: Encoded | undefined;
   const start = Math.max(0, scope.length - BASE62.length);
+  const targetCharacters = Array.from(target);
+  const targetIsAscii = targetBytes === target.length;
 
   for (let index = scope.length - 1; index >= start; index -= 1) {
     const source = scope[index];
-    if (typeof source !== "string" || utf8Length(source) > MAX_SPLICE_BYTES) {
+    if (typeof source !== "string") {
       continue;
     }
 
-    const candidate = findSplice(source, target, scope.length - 1 - index);
+    const sourceBytes = utf8Length(source);
+    if (sourceBytes < 8 || sourceBytes > MAX_SPLICE_BYTES) {
+      continue;
+    }
+
+    const candidate = findSplice(
+      source,
+      target,
+      targetCharacters,
+      targetIsAscii && sourceBytes === source.length,
+      scope.length - 1 - index,
+    );
     if (!candidate) {
       continue;
     }
@@ -912,78 +925,121 @@ function encodeScalarSplice(
 function findSplice(
   source: string,
   target: string,
+  targetCharacters: string[],
+  ascii: boolean,
   sourceDistance: number,
 ): Splice | undefined {
-  const sourceChars = Array.from(source);
-  const targetChars = Array.from(target);
-  const candidates: Splice[] = [];
-
   const containedAt = target.indexOf(source);
   if (containedAt >= 0) {
-    candidates.push({
+    return {
       dropLeft: 0,
       dropRight: 0,
       prefix: target.slice(0, containedAt),
       sourceDistance,
       suffix: target.slice(containedAt + source.length),
-    });
+    };
   }
+
+  if (ascii) {
+    return findAsciiSplice(source, target, sourceDistance);
+  }
+
+  const sourceCharacters = Array.from(source);
+  const sourceLength = sourceCharacters.length;
+  const targetLength = targetCharacters.length;
 
   let prefixLength = 0;
   while (
-    prefixLength < sourceChars.length &&
-    prefixLength < targetChars.length &&
-    sourceChars[prefixLength] === targetChars[prefixLength]
+    prefixLength < sourceLength &&
+    prefixLength < targetLength &&
+    sourceCharacters[prefixLength] === targetCharacters[prefixLength]
   ) {
     prefixLength += 1;
-  }
-  if (prefixLength > 0) {
-    candidates.push({
-      dropLeft: 0,
-      dropRight: sourceChars.length - prefixLength,
-      prefix: "",
-      sourceDistance,
-      suffix: targetChars.slice(prefixLength).join(""),
-    });
   }
 
   let suffixLength = 0;
   while (
-    suffixLength < sourceChars.length &&
-    suffixLength < targetChars.length &&
-    sourceChars[sourceChars.length - 1 - suffixLength] ===
-      targetChars[targetChars.length - 1 - suffixLength]
+    suffixLength < sourceLength &&
+    suffixLength < targetLength &&
+    sourceCharacters[sourceLength - 1 - suffixLength] ===
+      targetCharacters[targetLength - 1 - suffixLength]
   ) {
     suffixLength += 1;
   }
-  if (suffixLength > 0) {
-    candidates.push({
-      dropLeft: sourceChars.length - suffixLength,
+
+  const prefixBytes = utf8Length(
+    sourceCharacters.slice(0, prefixLength).join(""),
+  );
+  const suffixBytes = utf8Length(
+    sourceCharacters.slice(sourceLength - suffixLength).join(""),
+  );
+
+  if (prefixBytes >= suffixBytes && prefixBytes >= 8) {
+    return {
+      dropLeft: 0,
+      dropRight: sourceLength - prefixLength,
+      prefix: "",
+      sourceDistance,
+      suffix: targetCharacters.slice(prefixLength, targetLength).join(""),
+    };
+  }
+  if (suffixBytes >= 8) {
+    return {
+      dropLeft: sourceLength - suffixLength,
       dropRight: 0,
-      prefix: targetChars.slice(0, targetChars.length - suffixLength).join(""),
+      prefix: targetCharacters.slice(0, targetLength - suffixLength).join(""),
       sourceDistance,
       suffix: "",
-    });
+    };
   }
 
-  return candidates
-    .filter((candidate) => {
-      const copied = sourceChars
-        .slice(candidate.dropLeft, sourceChars.length - candidate.dropRight)
-        .join("");
+  return undefined;
+}
 
-      return utf8Length(copied) >= 8;
-    })
-    .sort((left, right) => {
-      const leftCopied = sourceChars
-        .slice(left.dropLeft, sourceChars.length - left.dropRight)
-        .join("");
-      const rightCopied = sourceChars
-        .slice(right.dropLeft, sourceChars.length - right.dropRight)
-        .join("");
+function findAsciiSplice(
+  source: string,
+  target: string,
+  sourceDistance: number,
+): Splice | undefined {
+  let prefixLength = 0;
+  while (
+    prefixLength < source.length &&
+    prefixLength < target.length &&
+    source[prefixLength] === target[prefixLength]
+  ) {
+    prefixLength += 1;
+  }
 
-      return utf8Length(rightCopied) - utf8Length(leftCopied);
-    })[0];
+  let suffixLength = 0;
+  while (
+    suffixLength < source.length &&
+    suffixLength < target.length &&
+    source[source.length - 1 - suffixLength] ===
+      target[target.length - 1 - suffixLength]
+  ) {
+    suffixLength += 1;
+  }
+
+  if (prefixLength >= 8 && prefixLength >= suffixLength) {
+    return {
+      dropLeft: 0,
+      dropRight: source.length - prefixLength,
+      prefix: "",
+      sourceDistance,
+      suffix: target.slice(prefixLength),
+    };
+  }
+  if (suffixLength >= 8) {
+    return {
+      dropLeft: source.length - suffixLength,
+      dropRight: 0,
+      prefix: target.slice(0, target.length - suffixLength),
+      sourceDistance,
+      suffix: "",
+    };
+  }
+
+  return undefined;
 }
 
 function encodeString(value: string, dialect: Dialect): Encoded {
@@ -1954,7 +2010,7 @@ function uniqueStrings(values: readonly string[], name: string): string[] {
 }
 
 function utf8Length(value: string): number {
-  return textEncoder.encode(value).length;
+  return Buffer.byteLength(value);
 }
 
 function parseUnsigned(value: string, name: string): number {

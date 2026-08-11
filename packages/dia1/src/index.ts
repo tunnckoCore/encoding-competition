@@ -1,5 +1,4 @@
 import {
-  alphabetFingerprint,
   directTokens,
   isTokenLiteral,
   simpleTokenSuffixes,
@@ -8,6 +7,7 @@ import {
   tokenCapacity,
   tokenFor,
   tokenIndex,
+  tokenLiteralPattern,
   tokenPrefix,
 } from "./alphabet.ts";
 
@@ -18,6 +18,7 @@ const MAX_ENTRY_BYTES = 4096;
 const MAX_DEPTH = 128;
 const MAX_DECODE_NODES = 1_000_000;
 const MAX_SPLICE_BYTES = 512;
+const MIN_WORD_NET_SAVINGS = 14;
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 const numberPattern = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
@@ -177,7 +178,6 @@ export function encodeDialect(
     dialect.words.length,
     dialect.exactValues.length,
     dialect.shapes.length,
-    alphabetFingerprint,
   ].join(".");
 
   return header + ":" + tables + encoded.body;
@@ -1301,7 +1301,9 @@ function pruneDialect(dialect: Dialect, usage: Usage): Dialect {
         utf8Length(escapeRawStringContent(word)) - tokenByteLength(index),
       );
 
-    return uses > 0 && maximumSavings > stringFrameBytes(word);
+    return (
+      uses > 0 && maximumSavings > stringFrameBytes(word) + MIN_WORD_NET_SAVINGS
+    );
   });
   const exactValues = dialect.exactValues.filter((value, index) => {
     const uses = usage.exact[index]!;
@@ -1371,13 +1373,9 @@ function serializeTables(dialect: Dialect): string {
 }
 
 function parseHeader(encoded: string): Header {
-  const match =
-    /^dia1\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.([0-9a-f]{16}):/.exec(encoded);
+  const match = /^dia1\.(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+):/.exec(encoded);
   if (!match) {
     throw new Error("malformed dialect header");
-  }
-  if (match[6] !== alphabetFingerprint) {
-    throw new Error("dialect alphabet does not match this runtime");
   }
 
   const expandedBytes = parseUnsigned(match[1]!, "expandedBytes");
@@ -1759,13 +1757,8 @@ function quoteRawString(value: string): string {
 
 function escapeRawStringContent(value: string): string {
   const escaped = JSON.stringify(value).slice(1, -1);
-  let output = "";
 
-  for (const character of escaped) {
-    output += isTokenLiteral(character) ? "\\" + character : character;
-  }
-
-  return output;
+  return escaped.replace(tokenLiteralPattern, "\\$&");
 }
 
 function stringFrame(value: string): string {

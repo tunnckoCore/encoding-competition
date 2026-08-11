@@ -1,11 +1,9 @@
-import { createHash } from "node:crypto";
-
 export const tokenPrefix = "*";
-export const directTokens = "?|^<>;%~$KQXY&V!DW'OJHF";
+export const directTokens = ">+()!'I<NXW$H_UBq~|;^OD%LF#VEQ?JMGR&YK";
 export const tokenBanks = "DEIBOPRH";
 
 const preferredSuffixes =
-  "!$&(),-./:=>@ACKMNST[_abcdfghijklmnpqrstuvwxyz" +
+  "!$&()f-:/.=>@ACKMNST[_abcd,ghijklmnpqrstuvwxyz" +
   "#%'+0123456789;<?FGJLQUVWXYZ]^`eo{|}~";
 const allSuffixes = preferredSuffixes + tokenBanks;
 
@@ -14,10 +12,6 @@ export const tokenCapacity =
   directTokens.length +
   simpleTokenSuffixes.length +
   tokenBanks.length * allSuffixes.length;
-export const alphabetFingerprint = createHash("sha256")
-  .update(directTokens + tokenPrefix + simpleTokenSuffixes + tokenBanks)
-  .digest("hex")
-  .slice(0, 16);
 
 const tokenCodes = [
   ...directTokens.split(""),
@@ -33,6 +27,18 @@ export const tokenIndex = new Map(
   tokenCodes.map((token, index) => [token, index]),
 );
 
+const tokenLiterals = tokenPrefix + directTokens;
+const tokenLiteralCodes = new Uint8Array(128);
+for (const character of tokenLiterals) {
+  tokenLiteralCodes[character.charCodeAt(0)] = 1;
+}
+
+const tokenLiteralClass = tokenLiterals.replace(
+  /[\\\]\-^]/g,
+  (character) => "\\" + character,
+);
+export const tokenLiteralPattern = new RegExp(`[${tokenLiteralClass}]`, "g");
+
 export function tokenFor(index: number): string {
   if (!Number.isInteger(index) || index < 0 || index >= tokenCapacity) {
     throw new Error("dialect token index exceeds the alphabet");
@@ -46,5 +52,5 @@ export function tokenByteLength(index: number): number {
 }
 
 export function isTokenLiteral(character: string): boolean {
-  return character === tokenPrefix || directTokens.includes(character);
+  return tokenLiteralCodes[character.charCodeAt(0)] === 1;
 }

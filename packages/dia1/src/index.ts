@@ -1,12 +1,14 @@
 import {
   alphabetFingerprint,
-  emojiAlphabet,
-  emojiIndex,
+  directTokens,
+  isTokenLiteral,
+  simpleTokenSuffixes,
+  tokenBanks,
   tokenByteLength,
   tokenCapacity,
   tokenFor,
-  tokenModifiers,
-  unicodeEscape,
+  tokenIndex,
+  tokenPrefix,
 } from "./alphabet.ts";
 
 const FORMAT = "dia1";
@@ -218,13 +220,13 @@ export function decodeDialect(encoded: string): unknown {
 function resolveOptions(options: DialectOptions): ResolvedOptions {
   const minWordBytes = options.minWordBytes ?? 4;
   const minWordOccurrences = options.minWordOccurrences ?? 3;
-  const maxWords = options.maxWords ?? emojiAlphabet.length;
+  const maxWords = options.maxWords ?? tokenCapacity;
   const maxValues = options.maxValues ?? 768;
   const maxShapes = options.maxShapes ?? 256;
 
   assertIntegerRange(minWordBytes, "minWordBytes", 4, 1024);
   assertIntegerRange(minWordOccurrences, "minWordOccurrences", 2, 1_000_000);
-  assertIntegerRange(maxWords, "maxWords", 0, emojiAlphabet.length);
+  assertIntegerRange(maxWords, "maxWords", 0, tokenCapacity);
   assertIntegerRange(maxValues, "maxValues", 0, tokenCapacity);
   assertIntegerRange(maxShapes, "maxShapes", 0, tokenCapacity);
 
@@ -1319,7 +1321,7 @@ function parseHeader(encoded: string): Header {
     throw new Error("malformed dialect header");
   }
   if (match[6] !== alphabetFingerprint) {
-    throw new Error("dialect emoji alphabet does not match this runtime");
+    throw new Error("dialect alphabet does not match this runtime");
   }
 
   const expandedBytes = parseUnsigned(match[1]!, "expandedBytes");
@@ -1329,7 +1331,7 @@ function parseHeader(encoded: string): Header {
   const shapeCount = parseUnsigned(match[5]!, "shapeCount");
 
   assertIntegerRange(keyCount, "keyCount", 0, tokenCapacity);
-  assertIntegerRange(wordCount, "wordCount", 0, emojiAlphabet.length);
+  assertIntegerRange(wordCount, "wordCount", 0, tokenCapacity);
   assertIntegerRange(exactCount, "exactCount", 0, tokenCapacity);
   assertIntegerRange(shapeCount, "shapeCount", 0, tokenCapacity);
 
@@ -1704,7 +1706,7 @@ function escapeRawStringContent(value: string): string {
   let output = "";
 
   for (const character of escaped) {
-    output += emojiIndex.has(character) ? unicodeEscape(character) : character;
+    output += isTokenLiteral(character) ? "\\" + character : character;
   }
 
   return output;
@@ -2104,16 +2106,22 @@ class ByteReader {
 
         return value;
       }
-      if (this.startsBareToken()) {
+      if (this.startsToken()) {
         flush();
         const index = this.readToken(words.length);
         append(words[index]!);
         continue;
       }
       if (marker === "\\") {
-        escaped += this.readAscii();
+        this.readAscii();
         const escape = this.readAscii();
-        escaped += escape;
+        if (isTokenLiteral(escape)) {
+          flush();
+          append(escape);
+          continue;
+        }
+
+        escaped += "\\" + escape;
 
         if (escape === "u") {
           for (let index = 0; index < 4; index += 1) {
@@ -2134,25 +2142,25 @@ class ByteReader {
   }
 
   readToken(limit: number): number {
-    let bank = 0;
-    const modifier = this.peekAscii();
+    const first = this.readAscii();
+    let token = first;
 
-    if (modifier && tokenModifiers.includes(modifier)) {
-      bank = tokenModifiers.indexOf(this.readAscii()) + 1;
+    if (first === tokenPrefix) {
+      const suffix = this.readAscii();
+      token += suffix;
+      if (tokenBanks.includes(suffix)) {
+        token += this.readAscii();
+      } else if (!simpleTokenSuffixes.includes(suffix)) {
+        throw new Error("dialect payload contains an unknown token suffix");
+      }
+    } else if (!directTokens.includes(first)) {
+      throw new Error("dialect payload contains an unknown token root");
     }
 
-    const root = this.readCodePoint();
-    const rootIndex = emojiIndex.get(root);
-    if (rootIndex === undefined) {
-      throw new Error(
-        "dialect payload contains an unknown emoji root at byte " +
-          (this.cursor - utf8Length(root)) +
-          ": " +
-          JSON.stringify(root),
-      );
+    const index = tokenIndex.get(token);
+    if (index === undefined) {
+      throw new Error("dialect payload contains an unknown token");
     }
-
-    const index = bank * emojiAlphabet.length + rootIndex;
     if (index >= limit) {
       throw new Error("dialect token reference is out of range");
     }
@@ -2208,34 +2216,14 @@ class ByteReader {
     return value;
   }
 
-  startsBareToken(): boolean {
-    const byte = this.bytes[this.cursor];
-    if (byte === undefined || byte < 0x80) {
-      return false;
-    }
-
-    const cursor = this.cursor;
-    const root = this.readCodePoint();
-    this.cursor = cursor;
-
-    return emojiIndex.has(root);
-  }
-
   startsToken(): boolean {
-    if (this.startsBareToken()) {
-      return true;
-    }
-
-    const modifier = this.peekAscii();
-    if (!modifier || !tokenModifiers.includes(modifier)) {
+    const byte = this.bytes[this.cursor];
+    if (byte === undefined || byte > 0x7f) {
       return false;
     }
 
-    const cursor = this.cursor;
-    this.cursor += 1;
-    const result = this.startsBareToken();
-    this.cursor = cursor;
+    const character = String.fromCharCode(byte);
 
-    return result;
+    return character === tokenPrefix || directTokens.includes(character);
   }
 }

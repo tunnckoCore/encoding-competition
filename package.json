@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vp run website#dev",
     "prepare": "vp config",
-    "ready": "vp run -r build && vp check --fix && vp test --run"
+    "ready": "vp check --fix && vp test --run && vp run -r build"
   },
   "dependencies": {
     "@toon-format/cli": "catalog:",

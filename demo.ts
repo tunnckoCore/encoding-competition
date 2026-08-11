@@ -1,7 +1,8 @@
 import { encode as encodeToon, decode as decodeToon } from "@toon-format/toon";
-import { encode as encodeGPT, decode as decodeGPT } from "gpt-tokenizer";
+import { encode as encodeGPT } from "gpt-tokenizer";
 import fixture from "./fixture.json" with { type: "json" };
 import canonFixture from "./fixture-canonicalized.json" with { type: "json" };
+import { writeBenchmarkResults } from "./benchmark-output.ts";
 
 import {
   /*encodeHbs, decodeHbs*/ createHbs,
@@ -46,8 +47,24 @@ if (JSON.stringify(decodeToon(toon)) !== json) {
 
 const size = (value: string): number => new TextEncoder().encode(value).length;
 
-console.log("toon size:", size(toon), "tokens:", encodeGPT(toon).length);
-console.log("json size:", size(json), "tokens:", encodeGPT(json).length);
-console.log("hbs3 size:", size(hbs3), "tokens:", encodeGPT(hbs3).length);
-console.log("tgj size:", size(tgj), "tokens:", encodeGPT(tgj).length);
-console.log("dia1 size:", size(dia1), "tokens:", encodeGPT(dia1).length);
+type SizeRow = {
+  format: "TOON" | "JSON" | "HBS3" | "TGJ" | "DIA1";
+  bytes: number;
+  tokens: number;
+};
+
+const rows: SizeRow[] = [
+  { format: "TOON", bytes: size(toon), tokens: encodeGPT(toon).length },
+  { format: "JSON", bytes: size(json), tokens: encodeGPT(json).length },
+  { format: "HBS3", bytes: size(hbs3), tokens: encodeGPT(hbs3).length },
+  { format: "TGJ", bytes: size(tgj), tokens: encodeGPT(tgj).length },
+  { format: "DIA1", bytes: size(dia1), tokens: encodeGPT(dia1).length },
+];
+
+await writeBenchmarkResults("size-wars.json", {
+  benchmark: "size wars",
+  tokenizer: "gpt-tokenizer",
+  rows,
+});
+
+console.table(rows);

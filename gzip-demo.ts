@@ -1,5 +1,6 @@
 import { constants as zlibConstants, gzipSync } from "node:zlib";
 
+import { writeBenchmarkResults } from "./benchmark-output.ts";
 import { decodeDialect, encodeDialect } from "./packages/dia1/src/index.ts";
 
 const gzipLevel = zlibConstants.Z_BEST_COMPRESSION;
@@ -49,5 +50,12 @@ for (const fixture of fixtures) {
     gzipDia1Delta: gzipDia1Bytes - gzipBytes,
   });
 }
+
+await writeBenchmarkResults("code-compression.json", {
+  benchmark: "code compression",
+  gzipLevel,
+  dia1: { deduplicate: true, jsonWrapped: true },
+  rows,
+});
 
 console.table(rows);

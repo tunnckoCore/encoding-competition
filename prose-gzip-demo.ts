@@ -1,5 +1,6 @@
 import { constants as zlibConstants, gzipSync } from "node:zlib";
 
+import { writeBenchmarkResults } from "./benchmark-output.ts";
 import { decodeDialect, encodeDialect } from "./packages/dia1/src/index.ts";
 
 const gzipLevel = zlibConstants.Z_BEST_COMPRESSION;
@@ -119,4 +120,12 @@ for (const { corpus, path } of corpora) {
   }
 }
 
+await writeBenchmarkResults("prose-compression.json", {
+  benchmark: "prose compression",
+  runtime: `Bun ${Bun.version}`,
+  gzipLevel,
+  normalization: "LF, one line per paragraph",
+  dia1: { deduplicate: true, jsonWrapped: true },
+  rows,
+});
 console.table(rows);

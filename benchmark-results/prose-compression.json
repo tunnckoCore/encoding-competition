@@ -1,0 +1,116 @@
+{
+  "benchmark": "prose compression",
+  "runtime": "Bun 1.3.14",
+  "gzipLevel": 9,
+  "normalization": "LF, one line per paragraph",
+  "dia1": {
+    "deduplicate": true,
+    "jsonWrapped": true
+  },
+  "rows": [
+    {
+      "corpus": "generated prose",
+      "target": 50000,
+      "sourceBytes": 50000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 20564,
+      "dia1WrappedBytes": 40030,
+      "gzipDia1Bytes": 20532,
+      "gzipDia1Delta": -32,
+      "gzipDia1DeltaPercent": -0.16,
+      "encodeMs": 1457.71,
+      "decodeMs": 12.4
+    },
+    {
+      "corpus": "generated prose",
+      "target": 100000,
+      "sourceBytes": 100000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 39544,
+      "dia1WrappedBytes": 76694,
+      "gzipDia1Bytes": 39161,
+      "gzipDia1Delta": -383,
+      "gzipDia1DeltaPercent": -0.97,
+      "encodeMs": 5290.27,
+      "decodeMs": 26.89
+    },
+    {
+      "corpus": "generated prose",
+      "target": 250000,
+      "sourceBytes": 250000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 96383,
+      "dia1WrappedBytes": 187289,
+      "gzipDia1Bytes": 94036,
+      "gzipDia1Delta": -2347,
+      "gzipDia1DeltaPercent": -2.44,
+      "encodeMs": 29728.44,
+      "decodeMs": 37.27
+    },
+    {
+      "corpus": "generated prose",
+      "target": 500000,
+      "sourceBytes": 500000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 189406,
+      "dia1WrappedBytes": 370686,
+      "gzipDia1Bytes": 183262,
+      "gzipDia1Delta": -6144,
+      "gzipDia1DeltaPercent": -3.24,
+      "encodeMs": 106614.55,
+      "decodeMs": 70.59
+    },
+    {
+      "corpus": "real prose",
+      "target": 50000,
+      "sourceBytes": 50000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 17666,
+      "dia1WrappedBytes": 35453,
+      "gzipDia1Bytes": 17724,
+      "gzipDia1Delta": 58,
+      "gzipDia1DeltaPercent": 0.33,
+      "encodeMs": 1389.47,
+      "decodeMs": 5.08
+    },
+    {
+      "corpus": "real prose",
+      "target": 100000,
+      "sourceBytes": 100000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 34019,
+      "dia1WrappedBytes": 68715,
+      "gzipDia1Bytes": 33728,
+      "gzipDia1Delta": -291,
+      "gzipDia1DeltaPercent": -0.86,
+      "encodeMs": 5309.36,
+      "decodeMs": 10.06
+    },
+    {
+      "corpus": "real prose",
+      "target": 250000,
+      "sourceBytes": 250000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 81044,
+      "dia1WrappedBytes": 167251,
+      "gzipDia1Bytes": 78697,
+      "gzipDia1Delta": -2347,
+      "gzipDia1DeltaPercent": -2.9,
+      "encodeMs": 28979.71,
+      "decodeMs": 22.77
+    },
+    {
+      "corpus": "real prose",
+      "target": 500000,
+      "sourceBytes": 500000,
+      "utf8PaddingBytes": 0,
+      "gzipBytes": 161062,
+      "dia1WrappedBytes": 333069,
+      "gzipDia1Bytes": 154349,
+      "gzipDia1Delta": -6713,
+      "gzipDia1DeltaPercent": -4.17,
+      "encodeMs": 98704.49,
+      "decodeMs": 41.21
+    }
+  ]
+}

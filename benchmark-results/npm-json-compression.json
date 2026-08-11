@@ -1,0 +1,45 @@
+{
+  "benchmark": "NPM JSON compression",
+  "runtime": "Bun 1.3.14",
+  "gzipLevel": 9,
+  "brotliQuality": 11,
+  "brotliMode": "text",
+  "dia1": {
+    "deduplicate": true,
+    "jsonWrapped": true
+  },
+  "rows": [
+    {
+      "fixture": "first 40 objects",
+      "objects": 40,
+      "sourceJsonBytes": 43851,
+      "dia1WrappedBytes": 15694,
+      "gzipSourceBytes": 7946,
+      "gzipDia1Bytes": 7744,
+      "gzipDia1Delta": -202,
+      "gzipDia1DeltaPercent": -2.54,
+      "brotliSourceBytes": 6513,
+      "brotliDia1Bytes": 6548,
+      "brotliDia1Delta": 35,
+      "brotliDia1DeltaPercent": 0.54,
+      "encodeMs": 135.46,
+      "decodeMs": 12.57
+    },
+    {
+      "fixture": "full fixture",
+      "objects": 250,
+      "sourceJsonBytes": 271898,
+      "dia1WrappedBytes": 79907,
+      "gzipSourceBytes": 43475,
+      "gzipDia1Bytes": 35588,
+      "gzipDia1Delta": -7887,
+      "gzipDia1DeltaPercent": -18.14,
+      "brotliSourceBytes": 33062,
+      "brotliDia1Bytes": 30600,
+      "brotliDia1Delta": -2462,
+      "brotliDia1DeltaPercent": -7.45,
+      "encodeMs": 493.5,
+      "decodeMs": 25.79
+    }
+  ]
+}
